@@ -1,10 +1,19 @@
-import { LightningElement, wire, track } from 'lwc';
+import { LightningElement, wire, track,api } from 'lwc';
 import fetchWrapperData from '@salesforce/apex/GlobalDeleteController.fetchWrapperData';
+import deleteSelectedRows from '@salesforce/apex/GlobalDeleteController.deleteSelectedRows';
+import {ShowToastEvent} from 'lightning/platformShowToastEvent';
+import {refreshApex} from '@salesforce/apex';
 
 const columns = [
     {
         label: 'Name',
         fieldName: 'name',
+        type: 'text',
+        sortable: true
+    },
+    {
+        label: 'Type',
+        fieldName: 'objType',
         type: 'text',
         sortable: true
     }
@@ -29,7 +38,8 @@ export default class Lwc_HandleDelete extends LightningElement {
     @track columns = columns
     @track error;
     @track data ;
- 
+    @api selectedIdList=[];
+
     @wire(fetchWrapperData)
     wiredAccounts({error, data}) {
         if (data) {
@@ -38,5 +48,37 @@ export default class Lwc_HandleDelete extends LightningElement {
         } else if (error) {
             this.error = error;
         }
+    }
+
+    getSelectedIdAction(event){
+        const selectedRows = event.detail.selectedRows;
+        //window.console.log('selectedRows# ' + JSON.stringify(selectedRows));
+        this.selectedIdList=[];
+        for (let i = 0; i<selectedRows.length; i++){
+            this.selectedIdList.push(selectedRows[i].id);
+        }
+        window.console.log('selectedRows# ' + this.selectedIdList);
+    }
+  
+   
+    deleteRowAction(){
+        console.log(this.selectedIdList);
+        deleteSelectedRows({recIdList:this.selectedIdList})
+        .then(()=>{
+            this.template.querySelector('lightning-datatable').selectedRows=[];
+ 
+            const toastEvent = new ShowToastEvent({
+                title:'Success!',
+                message:'Record deleted successfully',
+                variant:'success'
+              });
+              this.dispatchEvent(toastEvent);
+ 
+            return refreshApex(this.wireContact);
+        })
+        .catch(error =>{
+            this.errorMsg =error;
+            window.console.log('unable to delete the record due to ' + JSON.stringify(this.errorMsg));
+        });
     }
 }

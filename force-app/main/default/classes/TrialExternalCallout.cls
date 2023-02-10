@@ -13,9 +13,7 @@ global class TrialExternalCallout
     
     public class TrialOutputVariables{
         @InvocableVariable public String result;
-        @InvocableVariable public String subscriptionId;
-        @InvocableVariable public String adeptCustomerId;
-        @InvocableVariable public String adeptContactId;
+        @InvocableVariable public String responseType;
     }
     
     @InvocableMethod(callout=true label='TrialExternalCallout')    
@@ -31,7 +29,7 @@ global class TrialExternalCallout
         
         if(calloutType == 'CreateTrial'){
             Opportunity oppRec = [select id, AccountId, Account.Name,StageName from opportunity where id =: oppId];
-            Account accRec = [Select id, name, Subscription_Id__c, Customer_Id__c,(Select id,FirstName,LastName,Email from Contacts where Primary_Contact__c  = true order by LastModifiedDate Desc) from Account where id =: oppRec.AccountId];  
+            Account accRec = [Select id, name, Subscription_Id__c, Adept_Customer_Id__c,(Select id,FirstName,LastName,Email from Contacts where Primary_Contact__c  = true order by LastModifiedDate Desc) from Account where id =: oppRec.AccountId];  
             
             Map<String, String> inputData = new Map<String, String>();
             inputData.put('durationOverride', durationOverride);
@@ -71,7 +69,7 @@ global class TrialExternalCallout
                 try{
                     
                     accRec.Subscription_Id__c = String.valueof(responseMap.get('subscriptionId'));
-                    accRec.Customer_Id__c = String.valueof(responseMap.get('adeptCustomerId'));
+                    accRec.Adept_Customer_Id__c = String.valueof(responseMap.get('adeptCustomerId'));
                     update accRec;
                     // set stage of opp on trial
                     oppRec.StageName = 'Trial';
@@ -91,21 +89,22 @@ global class TrialExternalCallout
                         insert con;
                     }
                     
-                    output.result = response;
-                    output.subscriptionId = String.valueof(responseMap.get('subscriptionId'));
-                    output.adeptCustomerId = String.valueof(responseMap.get('adeptCustomerId'));
-                    output.adeptContactId = String.valueof(responseMap.get('adeptContactId'));
+                    output.result = 'Trial is created successfully.';
+                    output.responseType = 'success';
                     results.add(output);
                     return results;
                 }
                 Catch(Exception ex){
                     output.result = ex.getMessage() + ex.getLineNumber() +ex.getCause();
+                    output.responseType = 'warning';
                     results.add(output);
                     return results;
                 }
             }
             Catch(Exception ex){
+                HandleExceptionError.LogException('TrialExternalCallout','makeTrialCallout',oppId,ex,TrialCalloutHandler.createInputRequest(inputData),response);
                 output.result = response;
+                output.responseType = 'warning';
                 results.add(output);
                 return results;
             }

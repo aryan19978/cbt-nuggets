@@ -6,6 +6,7 @@ global class SalesTaxExternalCallout
     }
     public class OutputVariables{ 
         @InvocableVariable public String result; 
+        @InvocableVariable public String responseType; 
     }
     
     @InvocableMethod(callout=true label='SalesTaxExternalCallout')    
@@ -15,11 +16,13 @@ global class SalesTaxExternalCallout
         Map<String, String> inputData = new Map<String, String>();
         inputData.put('quoteId', quoteId);
         inputData.put('calloutType', calloutType);
-        String response = SalesTaxCalloutHandler.makeHttpCallout(inputData);
-        system.debug('resonse is + ' + response);
+        Map<String,String> responseMap = SalesTaxCalloutHandler.makeHttpCallout(inputData);
+        system.debug('resonse is + ' + responseMap);
         List<OutputVariables> results = new List<OutputVariables>();
+        
         OutputVariables output = new OutputVariables();
-        output.result = response;
+        output.result = responseMap.get('response');
+        output.responseType =  responseMap.get('responseType');
         results.add(output);
         return results;
     }

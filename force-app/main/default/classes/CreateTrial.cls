@@ -1,18 +1,15 @@
 global class CreateTrial {
-    
     global class leadRequest {
         @InvocableVariable(required=true)
         global Id LeadIds;
         @InvocableVariable
         global String resellerAccountId;
     }
-    
     global class FlowOutput{
         @InvocableVariable public Id contactId;
+        @InvocableVariable public Id accountId;
         @InvocableVariable public Id OpportunityId;
     }
-    
-    
     @InvocableMethod(label='Convert Lead')
     global static List<FlowOutput> assignLeads(List<leadRequest> lr){
         LeadStatus cLeadStatus=[Select Id,MasterLabel from LeadStatus where isConverted=true limit 1];
@@ -28,9 +25,11 @@ global class CreateTrial {
         }
         Id OpportunityId;
         Id ContactId;
+        Id accountId;
         for(Database.LeadConvertResult lctemp: lcr){
             OpportunityId = lctemp.getOpportunityId();
             ContactId = lctemp.getContactId();
+            accountId = lctemp.getAccountId();
         }
         if(ContactId != null){
             Contact con = new Contact(Id=ContactId, Primary_Contact__c = true,Owner__c = true);
@@ -41,13 +40,12 @@ global class CreateTrial {
             Opportunity opp = new Opportunity(Id=OpportunityId, Bill_to_Account__c = lr[0].resellerAccountId);
             update opp;
         }
-        
         List<FlowOutput> results = new List<FlowOutput>();
         FlowOutput result = new FlowOutput();
         result.contactId =  ContactId;
         result.OpportunityId = OpportunityId;
+        result.accountId = accountId;
         results.add(result);
-        
         return results;
     }
 }

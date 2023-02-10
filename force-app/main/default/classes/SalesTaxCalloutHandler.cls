@@ -1,12 +1,15 @@
 public class SalesTaxCalloutHandler {
-    public static String makeHttpCallout(Map<String, String> inputData){
+    public static Map<String,String> makeHttpCallout(Map<String, String> inputData){
         string requestBody = createInputRequest(inputData);
-        string response = SalesTaxCallout(inputData,requestBody);
-        return response;
+        Map<String,String> responseMap = SalesTaxCallout(inputData,requestBody);
+        return responseMap;
     }
     
     public static String createInputRequest(Map<String, String> inputData){
-        Quote quoteRec = [select id,Tax,AccountId,BillingStreet,BillingCity, BillingState, BillingPostalCode,BillingCountry from Quote where Id =: inputData.get('quoteId')];
+        Quote quoteRec = [select id,Tax,AccountId,BillingStreet,BillingCity, BillingState,
+                          BillingPostalCode,BillingCountry,
+                          Account.Adept_Customer_Id__c 
+                          from Quote where Id =: inputData.get('quoteId')];
             subscriptionlocation  location = new subscriptionlocation();
             location.line1 =    quoteRec.BillingStreet;
             location.city = quoteRec.BillingCity;
@@ -15,9 +18,8 @@ public class SalesTaxCalloutHandler {
             location.countryCode = quoteRec.BillingCountry;
                  
             SubscriptionCustomerDetail customerDetail = new SubscriptionCustomerDetail(); 
-         	customerDetail.adeptCustomerId = 'dylan-10000022';
-        	customerDetail.salesforceCustomerId = 'fakeSfCustomerid3b8dadee-33fe-4254-a9b2-f0983c5839cd';//quoteRec.AccountId;
-            
+         	customerDetail.adeptCustomerId = quoteRec.Account.Adept_Customer_Id__c;
+        	customerDetail.salesforceCustomerId = quoteRec.AccountId;
         	customerDetail.location = location;
             
             List<SubscriptionLineItem> lineItems = new List<SubscriptionLineItem>();
@@ -30,9 +32,9 @@ public class SalesTaxCalloutHandler {
             for(QuoteLineItem qliRec : qliRecList){
                 SubscriptionLineItem lineItem = new SubscriptionLineItem();
                 lineItem.productId = qliRec.Product2.productcode;
-                lineItem.productFamilyId = '';
+                //lineItem.productFamilyId = '';
                 lineItem.quantity = qliRec.Quantity;
-                lineItem.percentDiscount = qliRec.Discount;
+                lineItem.percentDiscount = qliRec.Discount != null ? qliRec.Discount/100 : 0;
                 lineItem.unitPrice = qliRec.Original_Price__c ;
                 lineItem.startDate = String.valueof(qliRec.Start_Date__c);
                 lineItem.description = qliRec.Description;
@@ -47,19 +49,25 @@ public class SalesTaxCalloutHandler {
             data.purchaseDetails = purchaseDetail;
             data.customerDetails = customerDetail;
             String jsonStr = JSON.serialize(data);
-        	system.debug('jsonStr' + jsonStr);
+        	system.debug('Sales Tax Request' + jsonStr);
             return jsonStr;
     }
     
     
-    public static String SalesTaxCallout(Map<String, String> inputData, string jsonString){
+    public static Map<String,String> SalesTaxCallout(Map<String, String> inputData, string jsonString){
         HTTPResponse res;
+        Map<String,String> responseMap = new Map<String,String>();
         try{
             system.debug('input request' + jsonString);
             HttpCalloutService service = new HTTPCalloutService('GetSalesTax');
             service.setRequestBody(jsonString);
+            
+            service.setHeaderParameter('adept-apikey', HttpCalloutUtility.getValueCustomMetadata('apiKey'));
+            service.setHeaderParameter('adept-billing-env', HttpCalloutUtility.getValueCustomMetadata('env'));
+            service.setHeaderParameter('adept-billing-sfuserid', UserInfo.getUserId());
+            
             res = service.sendRequest();
-            system.debug(res.getBody());
+            system.debug('response' + res.getBody());
             
             SalesTaxResponseWrapper jsonStrToWrapper=  (SalesTaxResponseWrapper) System.JSON.deserialize(res.getBody(), SalesTaxResponseWrapper.class);
             try{
@@ -80,8 +88,8 @@ public class SalesTaxCalloutHandler {
                     }
                 }  
                 system.debug('taxValue' + taxValue);
-                Quote quoteRec = [select id,Tax ,Opportunity.Tax_Exempt__c, (select id,Product2.productcode,Quantity,
-                                                 Discount,UnitPrice,Start_Date__c,
+                Quote quoteRec = [select id,Tax ,Opportunity.Tax_Exempt__c,End_Date__c,License_Type__c, (select id,Product2.productcode,Quantity,
+                                                 Discount,UnitPrice,Start_Date__c,End_Date__c,
                                                  Do_Not_Sync_Original_Price__c,Original_Price__c
                                                   from  QuoteLineItems)
                                   from Quote where Id =: inputData.get('quoteId')];
@@ -92,7 +100,7 @@ public class SalesTaxCalloutHandler {
                 }
                 quoteRec.Quote_Type__c = response.quoteType;
                 quoteRec.Start_Date__c = startDate;
-                
+                quoteRec.End_Date__c  =  QuoteUtility.getEndDate(startDate,quoteRec.License_Type__c);
                 list<QuoteLineItem> quoteLineItemList = new list<QuoteLineItem>();
                 for(QuoteLineItem qliRec : quoteRec.QuoteLineItems){
                     system.debug(qliRec.Product2.productcode);
@@ -113,20 +121,29 @@ public class SalesTaxCalloutHandler {
                 }
                 update quoteLineItemList;
                 if(quoteRec.Opportunity.Tax_Exempt__c){
-                    return 'Sales Tax is exempted. Tax is : 0' ;
+                    responseMap.put('response','Sales Tax is exempted.');
+                    responseMap.put('responseType','Success');
+                    return responseMap;
                 }
                 else{
-                    return 'Sales Tax is calculated successfully. Tax is : ' + taxValue;
+                    String taxValueOutput = '$' + String.valueOf(taxValue.format());
+                    responseMap.put('response','Sales Tax is calculated successfully. Tax is : ' + taxValueOutput);
+                    responseMap.put('responseType','success');
+                    return responseMap;
                 }
             }
             Catch(exception ex){
                 system.debug(ex.getMessage() + ex.getLineNumber() +ex.getCause());
-                return ex.getMessage() + ex.getLineNumber() +ex.getCause();
+                responseMap.put('response',ex.getMessage() + ex.getLineNumber() +ex.getCause());
+                responseMap.put('responseType','warning');
+                return responseMap;
             }
         }
         Catch(exception ex){
-            system.debug(res.getBody());
-            return res.getBody();
+            HandleExceptionError.LogException('SalesTaxCalloutHandler','SalesTaxCallout',inputData.get('quoteId'),ex,jsonString,res.getBody());
+            responseMap.put('response',res.getBody());
+            responseMap.put('responseType','warning');
+            return responseMap;
         }
     }
     
@@ -161,7 +178,7 @@ public class SalesTaxCalloutHandler {
     }
     Public class SubscriptionLineItem{
         Public String productId;
-        Public String productFamilyId;
+        //Public String productFamilyId;
         Public Decimal quantity;
         Public Decimal percentDiscount;
         Public Decimal unitPrice;

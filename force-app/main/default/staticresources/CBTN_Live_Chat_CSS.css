@@ -1,0 +1,463 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700');
+
+body {
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    line-height: 1.5;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.4rem;
+}
+
+html {
+    font-size: 62.5% !important;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+#chatContainer {
+    width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: #FFF;
+    box-shadow: 0 0 1.2rem rgba(0, 0, 0, 0.20);
+}
+
+header {
+        width: 100%;
+        text-align: center;
+        position: relative;
+        vertical-align: middle;
+}
+
+header img {
+    max-width: 20rem;
+    padding: 0 0 2rem 1rem;
+}
+
+p {
+    line-height: 1.6;
+    color: #4A4A4A;
+    font-size: 1.6rem;
+}
+
+label {
+    color: #455060;
+    display: inline-block;
+    margin-bottom: .5rem;
+    font-weight: normal;
+    font-size: 1.6rem;
+}
+
+input {
+    display: block;
+    width: 100%;
+    color: #1B2733;
+    height: 4.6rem;
+    padding: 1rem 1.2rem;
+    font-size: 1.4rem;
+    line-height: 1;
+    border-radius: 0;
+    border: .1rem solid #687588;
+    background-color: #fff;
+    background-image: none;
+    -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+input:focus {
+    outline: none !important;
+    border-color:#0F62FA;
+    box-shadow: inset .1rem #0F62FA;
+}
+
+.chatcard {
+    padding: 2rem 2rem 0 2rem;
+}
+
+.chatcard .global-chat-body {
+    border-bottom: .2rem solid #e5e5e5;
+}
+
+.chatcard .global-chat-body button {
+    display: block;
+    margin-bottom: 2.2rem;
+    width: 100%;
+    padding: 1.2rem 4.8rem;
+}
+
+.chatcard .global-chat-body span {
+    font-size: 1.2rem;
+    letter-spacing: 0.042rem;
+    line-height: 1.6rem;
+    color: #FFF;
+    opacity: .9;
+    font-weight: 500;
+}
+
+.chatcard .global-chat-body p {
+    padding-bottom: 2rem;
+}
+
+.chatcard .global-chat-body a {
+    display: block;
+    text-align: center;
+}
+
+.chatcard .global-chat-legal {
+    min-height: 4rem;
+}
+
+.chatcard .global-chat-legal em {
+    font-style: normal;
+    color: #4A4A4A;
+    font-size: 1.2rem;
+    letter-spacing: 0.002rem;
+    line-height: 1.4rem;
+    font-weight: 200;
+}
+
+.chatcard p {	
+    font-size: 1.6rem;	
+    margin: 0;
+    color: #4A4A4A;
+}
+
+.chatcard div {
+    margin-bottom: 1.5rem;
+}
+
+.chatcard h4 {
+    font-weight: 400;
+    font-size: 1.8rem;        
+}
+
+#chatContainer textarea.cbt-textarea {
+    padding: .6rem 1rem;
+    font-size: 1.4rem;
+    border: .1rem solid #c9c9c9;
+    color: #666;
+    transition: box-shadow 0.2s ease, border 0.2s ease;
+    -webkit-border-radius: .5rem;
+    -moz-border-radius: .5rem;
+    -ms-border-radius: .5rem;
+    border-radius: .5rem;
+    outline: none;
+    margin-bottom: .5rem;
+    background-color: #fff;
+    margin: .8rem 0 1.6rem;
+    resize: none;
+    width: 100%;
+    min-height: 6rem;
+}
+
+#chatContainer textarea.cbt-textarea:focus {
+    outline: none !important;
+    border-color:#0F62FA;
+}
+
+.btn.cbt-btn, button.cbt-btn, .liveAgentChatElement.liveAgentEndButton, .liveAgentChatElement.liveAgentSaveButton, .liveAgentChatElement.liveAgentSendButton {
+    -webkit-border-radius: 3.2rem;
+    -moz-border-radius: 3.2rem;
+    -ms-border-radius: 3.2rem;
+    border-radius: 3.2rem;
+    border: .1rem solid transparent;
+    font-family: 'Source Sans Pro', sans-serif !important;
+    font-weight: 600;
+    font-size: 1.4rem;
+    background-position: center;
+    text-align: center;
+    text-transform: capitalize;
+    text-decoration: none;
+    transition: background 0.6s, border-color 0.3s, background-color 0.3s;
+    width: calc(50% - 1rem);
+    display: inline-block;
+    cursor: pointer;
+    padding: .5rem 1.8rem;
+    white-space: nowrap;
+    background-image: none;
+    height: unset;
+    line-height: unset;
+}
+
+.btn.cbt-btn.cancel-btn, button.cbt-btn.cancel-btn, .liveAgentSaveButton, .liveAgentEndButton {
+    background-color: transparent;
+    color: #1B2733;
+    border: .2rem solid #FFBC00 !important;
+}
+
+.btn.cbt-btn.submit-btn, button.cbt-btn.submit-btn, .liveAgentSendButton {
+    background-color: #FFBC00;
+    color: #1B2733; 
+    border: .2rem solid #FFBC00 !important;
+}
+
+.liveAgentSendButton, .liveAgentSaveButton, .liveAgentEndButton {
+    width: 15.5rem !important;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn.cbt-btn:hover, button.cbt-btn:hover, .liveAgentEndButton:hover, .liveAgentSaveButton:hover, .liveAgentSendButton:hover {
+    border-color: #ffd04d;
+    background:#ffd04d radial-gradient(circle, transparent 1%, #ffd04d 1%) center/15000%;
+}
+
+.btn-right {
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.btn-center {
+    margin: 0 auto;
+}
+
+textarea {
+    color: #1B2733;
+    padding:1rem 1.2rem;
+    font-family: 'Source Sans Pro', sans-serif !important;
+    font-size: 1.6rem;
+    line-height: 1.33;
+    border-radius: 0;
+    border: .1rem solid #687588;
+    box-shadow: none;
+    width: 100%;
+    height: 10rem;
+    background-color: #fff;
+    background-image: none;
+    resize: none;
+    -webkit-box-shadow: inset 0 .1rem .1rem rgba(0,0,0,.075);
+    box-shadow: inset 0 .1rem .1rem rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s;
+    transition: border-color ease-in-out .15s;
+}
+    textarea:focus {
+        outline: none !important;
+        border-color: #0F62FA;
+    }
+
+hr {
+    display: block;
+    height: .1rem;
+    border: 0;
+    border-top: .1rem solid #ccc;
+    margin: 1em 0;
+    padding: 0; 
+}
+
+select {
+    display: block;
+    width: 100%;
+    color: #1B2733;
+    padding: 1rem 2.4rem 1rem 1.2rem;
+    background-position: right 50%;
+    background-repeat: no-repeat;
+    background-image: url('https://www.cbtnuggets.com/assets/images/svg/select-arrow.svg');
+    background-color: #fff;
+    height: 4.6rem;
+    font-family: 'Source Sans Pro', sans-serif !important;
+    font-size: 1.6rem;
+    line-height: 1;
+    border-radius: 0;
+    border: .1rem solid #687588;
+    box-shadow: none;
+    -webkit-appearance: none;
+    opacity: 1;
+    transition: border-color ease-in-out 0.15s;
+  }
+
+select:focus {
+    border-color:#0F62FA;
+}
+
+.helpCenter {
+    text-align: center;
+    margin: 1.5rem;
+}
+
+.helpCenter a {
+    color: #0F62FA;
+    font-size: 1.6rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.helpCenter a:hover {
+    color: #0F62FA;
+}
+
+.privacyPolicy {
+    text-align: center;
+    padding-top: 2rem;
+    font-size: 1.4rem;
+}
+
+.privacyPolicy a {
+    color: #0F62FA;
+    font-weight: bold;
+}
+
+.privacyPolicy a:hover {
+    color: #0F62FA;
+}
+
+.chatsend{
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+#waitingMessage{
+    width: 100%;
+    text-align: center;
+    padding: 6rem 0;
+}
+
+#chattingWith{
+    display: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin: 0 0 1.5rem 0;
+}
+
+#liveAgentChatLog.liveAgentChatElement{
+    height: 25rem;
+    border: none;
+    overflow-y: auto;
+}
+
+#liveAgentChatInput{
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    height: auto;
+   /* padding: .6rem 1.2rem; */
+    padding: 0;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+ /*   -webkit-box-shadow: inset 0 .1rem .1rem rgba(0,0,0,0.075);
+    box-shadow: inset 0 .1rem .1rem rgba(0,0,0,0.075); */
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+
+#liveAgentChatLogText .client{
+    color: #555;
+    padding-bottom: 1.5rem;
+    display: flex !important;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+#liveAgentChatLogText .agent, #liveAgentChatLogText .operator{
+    color: #2ca36e;
+    padding-bottom: 1.5rem;
+    display: flex !important;
+    /*align-items: center; */
+    align-items: flex-end;
+    justify-content: center;
+}
+
+#liveAgentChatLogText .messageText {
+    width: 100%;
+    border: .1rem solid #eee;
+    border-radius: .4rem .4rem .4rem 0;
+    padding: 1rem;
+    background-color: #eee;
+    color: #000000;
+}
+
+#liveAgentChatLogText .system{
+    color: #999;
+    padding-bottom: .5rem;
+}
+
+#liveAgentChatLog .name {
+    margin-bottom: 1rem;
+}
+
+#liveAgentChatLogTyping{
+    font-size: 1.1rem;
+    color: #999;
+    text-decoration: italic;
+}
+
+#chatAlert{
+    color: #f00;
+    text-decoration: italic;
+    display: none;
+}
+
+.alert {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+    padding: 1.5rem 3.5rem 1.5rem 1.5rem;
+    border: .1rem solid transparent;
+    border-radius: .4rem;
+}
+
+    .alert a {
+        color: #a94442;
+    }
+
+#chatStatus{
+    color: #999;
+    text-decoration: italic;
+    display: none;
+}
+
+#liveAgentChatTextArea {
+    padding: 1rem .5rem;
+    border: .1rem solid #ccc;
+    border-radius: .4rem;
+}
+    
+    #liveAgentChatTextArea:focus {
+        outline: none !important;
+        border-color:#0F62FA;
+    }
+
+#liveAgentClientChat textarea#liveAgentChatTextArea{
+    max-height: 5rem;
+   /* overflow-y: auto !important; */
+    height: 5rem !important;
+    padding: 1.5rem .5rem !important;
+    border: .1rem solid #ccc !important;
+    box-shadow: none !important;
+}
+    #liveAgentClientChat textarea#liveAgentChatTextArea:focus {
+        outline: none !important;
+        border-color:#0F62FA !important;
+    }
+
+.subText {
+    color: #687588;
+    font-size: 1.4rem;
+    font-weight: normal;
+    padding-bottom: .5rem;
+}
+
+.postChatSurvey {
+    margin: 1.5rem 0 0 0;
+}
+    .postChatSurvey textarea {
+        margin: 0 0 .5rem 0;
+    }
+
+.thank-you-centered {
+    text-align: center;
+}

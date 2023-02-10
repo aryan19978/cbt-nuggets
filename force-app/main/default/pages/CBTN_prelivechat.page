@@ -1,0 +1,187 @@
+<apex:page showHeader="false"> 
+<html>
+    <head>
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-WDQ6JQ9');</script>
+        <!-- End Google Tag Manager -->
+        <title>
+            CBT Nuggets Live Chat
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        <apex:stylesheet value="{!$Resource.CBTN_Live_Chat_CSS}"/>
+    </head>
+    <body onload="pageLoad()">
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WDQ6JQ9"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
+        <div id="chatContainer">
+            <header>
+                <apex:image value="{!$Resource.CBTN_Live_Chat_Logo}"/>
+            </header>
+            <form id='prechatForm' method="post" name="loginform">
+                <section class="chatcard">
+                    <div>
+                        <label>First Name</label>
+                        <input type='text' name='liveagent.prechat:First Name' id='FirstNameDetail' maxlength="40" aria-required="true"  required="true"/>
+                    </div>
+                    <div>
+                        <label>Last Name</label>
+                        <input type='text' name='liveagent.prechat:Last Name' id='LastNameDetail' maxlength="40" aria-required="true"  required="true"/>
+                    </div>
+                    <div>
+                        <label>Email Address</label>
+                        <input type='email' name='liveagent.prechat:Email' id='EmailDetail' maxlength="80" aria-required="true"  required="true"/>
+                    </div>
+                    <div>
+                        <label>What can we help you with?</label>
+                        <textarea name='liveagent.prechat:Question' id='Question' placeholder="" maxlength="255" aria-required="true" required="true"></textarea>
+                    </div>
+                    <div>
+                        <label>Who would you like to chat with?</label>
+                         <select multiselect="false" name="liveagent.prechat.buttons" size="1" id="queuePicklist" onchange="setQueue();" aria-required="true" required="true">
+                           <option id="selectOption" hidden="true" disabled="true" selected="true" value="" style="display: none">
+                                Select an option 
+                            </option>
+                            <option data-id-val="5732J0000008PeA" value="support" label="Support">
+                                Support
+                            </option>
+                            <option data-id-val="5732J0000008Pe5" value="team_sales" label=" Team Sales">
+                                Team Sales
+                            </option>
+                            <option data-id-val="5732J0000008PeA" value="individual_sales" label="Individual Sales">
+                                Individual Sales
+                            </option>
+                            <option data-id-val="5732J0000008PeA" value="billing" label="Billing">
+                                Billing
+                            </option>
+                            <option data-id-val="5732J0000008PeA" value="other" label="Other">
+                                Other
+                            </option> 
+                        </select>
+                    </div>
+                    <div class="helpCenter">
+                        <a HRef="https://community.cbtnuggets.com" Target="_blank">Search our Help Center</a>
+                    </div>
+
+                    <input type="hidden" name="liveagent.prechat:Queue" id='Queue' />
+                    <input type="hidden" name="liveagent.prechat.save:First Name" value="First_Name_Detail__c"/>
+                    <input type="hidden" name="liveagent.prechat.save:Last Name" value="Last_Name_Detail__c"/>
+                    <input type="hidden" name="liveagent.prechat.save:Email" value="Email_Detail__c"/>
+                    <input type="hidden" name="liveagent.prechat.save:Question" value="Question_Detail__c"/>
+                    <input type="hidden" name="liveagent.prechat.save:Queue" value="Queue_Detail__c"/>
+
+
+                    <!-- Map liveagent.prechat:FirstNameDetail and liveagent.prechat:LastNameDetail custom detail to Contact's field FirstName and LastName -->  
+                    <input type="hidden" name="liveagent.prechat.findorcreate.map:Contact" value="FirstName,FirstNameDetail;LastName,LastNameDetail;Email,EmailDetail" />
+                      
+                    <!-- Specify to query for a matching Contact records FirstName field based on the value of FirstName -->
+                    <input type="hidden" name="liveagent.prechat.findorcreate.map.doFind:Contact" value="Email,true" />
+
+                    <!-- Return results only if there is an exact match of FirstName -->
+                    <input type="hidden" name="liveagent.prechat.findorcreate.map.isExactMatch:Contact" value="FirstName,true" />
+                    <hr />
+                    <div class="btn-container">
+                        <button class="btn cbt-btn cancel-btn" type='submit' onclick="window.close();" value="Cancel" id='prechat_cancel'>Cancel</button>
+                        <button class="btn cbt-btn submit-btn" type='submit' value='Start Chat' id='prechat_submit'>Start Chat</button>
+                    </div>
+                    <div class="privacyPolicy">
+                        I have read and understand the <a HRef="https://www.cbtnuggets.com/privacy" Target="_blank">Privacy Policy</a> and am able to consent to it.
+                    </div>
+                </section>
+            </form>
+        </div>
+    </body>
+    <script type="text/javascript">            
+        function pageLoad() {
+            document.getElementById("selectOption").value = "";
+            setQueueFromURL();
+        }
+
+        function setQueue() {
+            const queuePicklist = document.getElementById("queuePicklist");
+            var queueId = queuePicklist.options[queuePicklist.selectedIndex].getAttribute('data-id-val');
+            document.getElementById("Queue").value = queueId;
+        }
+        
+        /* Select the "Who would you like to chat with?" dropdown option on initial page load depending on url param 'queue_selection' */
+        function setQueueFromURL() {
+            const urlParams = window.location.search;
+            const decodedUri = decodeURIComponent(urlParams), 
+                  urlSearchObj = new URLSearchParams(decodedUri),
+                  queueIdValMap = ['support','team_sales','individual_sales','billing','other'];
+
+            if (urlSearchObj != null && urlSearchObj.has('queue_selection')) {
+                const queuePicklist = document.getElementById("queuePicklist");
+                const queueSelectionValueFromUrl = urlSearchObj.get('queue_selection');
+                if (queueIdValMap.includes(queueSelectionValueFromUrl.toLowerCase())) {
+                    queuePicklist.value = queueSelectionValueFromUrl; // Set the UI picklist
+                    setQueue();
+
+                    // Remove 'queue_selection' and its value from the URL
+                    const paramIndex = urlParams.indexOf('queue_selection');
+                    const replaceUrlSearch = urlParams.substring(0, paramIndex-3);
+                    window.history.replaceState(null, null, replaceUrlSearch);
+                }
+            }
+        }
+
+        /* Select the "Who would you like to chat with?" dropdown option on initial page load depending on url param 'queue_selection' */
+        function setQueueFromURL() {
+            const urlParams = window.location.search;
+            const decodedUri = decodeURIComponent(urlParams), 
+                  urlSearchObj = new URLSearchParams(decodedUri),
+                  queueIdValMap = {
+                      'support': '5732J0000008PeA',
+                      'team_sales': '5732J0000008Pe5',
+                      'individual_sales':  '5732J0000008PeA',
+                      'billing':  '5732J0000008PeA',
+                      'other':  '5732J0000008PeA'
+                  };
+
+            if (urlSearchObj != null && urlSearchObj.has('queue_selection')) {
+                const queuePicklist = document.getElementById("queuePicklist");
+                const queueSelectionValueFromUrl = urlSearchObj.get('queue_selection');
+                if (queueIdValMap.hasOwnProperty(queueSelectionValueFromUrl.toLowerCase())) {
+                    queuePicklist.value = queueIdValMap[queueSelectionValueFromUrl.toLowerCase()];
+                    setQueue();
+                }
+            }
+        }
+
+        document.querySelector("#prechatForm").addEventListener("submit", function(e){
+            var isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
+                navigator.userAgent &&
+                navigator.userAgent.indexOf('CriOS') == -1 &&
+                navigator.userAgent.indexOf('FxiOS') == -1;
+
+            if(isSafari === true) {
+                var queueValue = document.getElementById("queuePicklist").value;
+                if(queueValue === null || queueValue === '') {
+                    e.preventDefault();
+                    document.getElementById("queuePicklist").focus();
+                } else {
+                    return true;
+                }
+            }
+        });
+
+        //This funcion is what connects this piece to live agent
+        (function() { 
+            function handlePageLoad() {
+                var endpointMatcher = new RegExp("[\\?\\&]endpoint=([^&#]*)");
+                document.getElementById('prechatForm').setAttribute('action', decodeURIComponent(endpointMatcher.exec(document.location.search)[1]));
+            } 
+            if (window.addEventListener) {
+                window.addEventListener('load', handlePageLoad, false);
+            } else { 
+                window.attachEvent('onload', handlePageLoad, false);
+            }
+        })();
+    </script>
+</html>
+</apex:page>

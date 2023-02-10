@@ -1,0 +1,97 @@
+<apex:page >
+
+
+    <style type='text/css'>
+        .embeddedServiceHelpButton .helpButton .uiButton {
+            background-color: #005290;
+            font-family: "Arial", sans-serif;
+        }
+        .embeddedServiceHelpButton .helpButton .uiButton:focus {
+            outline: 1px solid #005290;
+        }
+    </style>
+    
+    <script type='text/javascript' src='https://service.force.com/embeddedservice/5.0/esw.min.js'></script>
+    <script type='text/javascript'>
+        var initESW = function(gslbBaseURL) {
+            embedded_svc.settings.displayHelpButton = true; //Or false
+            embedded_svc.settings.language = ''; //For example, enter 'en' or 'en-US'
+    
+            //embedded_svc.settings.defaultMinimizedText = '...'; //(Defaults to Chat with an Expert)
+            //embedded_svc.settings.disabledMinimizedText = '...'; //(Defaults to Agent Offline)
+    
+            //embedded_svc.settings.loadingText = ''; //(Defaults to Loading)
+            //embedded_svc.settings.storageDomain = 'yourdomain.com'; //(Sets the domain for your deployment so that visitors can navigate subdomains during a chat session)
+    
+            // Settings for Chat
+            //embedded_svc.settings.directToButtonRouting = function(prechatFormData) {
+                // Dynamically changes the button ID based on what the visitor enters in the pre-chat form.
+                // Returns a valid button ID.
+            //};
+            //embedded_svc.settings.prepopulatedPrechatFields = {}; //Sets the auto-population of pre-chat form fields
+            //embedded_svc.settings.fallbackRouting = []; //An array of button IDs, user IDs, or userId_buttonId
+            //embedded_svc.settings.offlineSupportMinimizedText = '...'; //(Defaults to Contact Us)
+    
+            embedded_svc.settings.enabledFeatures = ['LiveAgent'];
+            embedded_svc.settings.entryFeature = 'LiveAgent';
+    
+            embedded_svc.init(
+                'https://cbtnuggets2--qasandbox.sandbox.my.salesforce.com',
+                'https://cbtnuggets2--qasandbox.sandbox.my.salesforce-sites.com/livechat',
+                gslbBaseURL,
+                '00D52000000L6W7',
+                'Sales_Chat_Queue_Group',
+                {
+                    baseLiveAgentContentURL: 'https://c.la4-c1cs-ia5.salesforceliveagent.com/content',
+                    deploymentId: '57252000000Chis',
+                    buttonId: '57352000000Chwj',
+                    baseLiveAgentURL: 'https://d.la4-c1cs-ia5.salesforceliveagent.com/chat',
+                    eswLiveAgentDevName: 'Sales_Chat_Queue_Group',
+                    isOfflineSupportEnabled: false
+                }
+            );
+        };
+    
+        if (!window.embedded_svc) {
+            var s = document.createElement('script');
+            s.setAttribute('src', 'https://cbtnuggets2--qasandbox.sandbox.my.salesforce.com/embeddedservice/5.0/esw.min.js');
+            s.onload = function() {
+                initESW(null);
+            };
+            document.body.appendChild(s);
+        } else {
+            initESW('https://service.force.com');
+        }
+    </script>
+    
+    
+	<a id="liveagent_button_online_57352000000ChwZ" href="javascript://Chat" style="display: block;" onclick="liveagent.startChat('57352000000ChwZ')">Live Chat</a>    
+    <div id="liveagent_button_offline_57352000000ChwZ" style="display: none;"><!-- Offline Chat Content --></div>    
+    <script type="text/javascript">
+        if (!window._laq) { window._laq = []; }
+        window._laq.push(function(){liveagent.showWhenOnline('57352000000ChwZ', document.getElementById('liveagent_button_online_57352000000ChwZ'));
+        liveagent.showWhenOffline('57352000000ChwZ', document.getElementById('liveagent_button_offline_57352000000ChwZ'));
+        });
+    </script>
+    
+    
+    <a id="liveagent_button_online_57352000000Chwj" href="javascript://Chat" style="display: block;" onclick="liveagent.startChat('57352000000Chwj')">Sales</a>
+    <div id="liveagent_button_offline_57352000000Chwj" style="display: none;"><!-- Offline Chat Content --></div>
+    <script type="text/javascript">
+        if (!window._laq) { window._laq = []; }
+        window._laq.push(function(){liveagent.showWhenOnline('57352000000Chwj', document.getElementById('liveagent_button_online_57352000000Chwj'));
+        liveagent.showWhenOffline('57352000000Chwj', document.getElementById('liveagent_button_offline_57352000000Chwj'));
+        });
+    </script>
+
+
+    <a id="liveagent_button_online_57352000000Chwo" href="javascript://Chat" style="display: block;" onclick="liveagent.startChat('57352000000Chwo')">Support</a>
+    <div id="liveagent_button_offline_57352000000Chwo" style="display: none;"><!-- Offline Chat Content --></div>
+    <script type="text/javascript">
+        if (!window._laq) { window._laq = []; }
+        window._laq.push(function(){liveagent.showWhenOnline('57352000000Chwo', document.getElementById('liveagent_button_online_57352000000Chwo'));
+        liveagent.showWhenOffline('57352000000Chwo', document.getElementById('liveagent_button_offline_57352000000Chwo'));
+        });
+    </script>
+
+</apex:page>

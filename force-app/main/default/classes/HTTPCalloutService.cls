@@ -170,7 +170,6 @@ public class HTTPCalloutService {
     * This method is used to set URL or Header parameters from Custom Metadata
     */
     private void setUrlOrHeaderParameters(String parameterType, String parameterInfo) {
-        system.debug('parameterInfo' + parameterInfo);
         if(String.isNotEmpty(parameterInfo)) {
             Map<String, String> parametersMap = new Map<String, String>();
             List<String> parameters = parameterInfo.split('\n');
@@ -191,7 +190,6 @@ public class HTTPCalloutService {
             if(parameterType == TYPE_URL_PARAMETERS) {
                 urlParametersMap.putAll(parametersMap);
             } else if(parameterType == TYPE_HEADER_PARAMETERS) {
-                system.debug('aryan here in header parameter'+ parametersMap);
                 headerParametersMap.putAll(parametersMap);
             }
         }

@@ -6,7 +6,7 @@ public with sharing class CreateQuoteController {
         if(licenseType == 'Monthly'){
             endDate = stDate.addMonths(1);
         }
-        if(licenseType == 'Annual'){
+        if(licenseType == 'Yearly'){
             endDate = stDate.addYears(1);
         }
         return endDate;
@@ -29,33 +29,31 @@ public with sharing class CreateQuoteController {
     
     @AuraEnabled(cacheable=false)
     public static QuoteWrapper getQuoteDetail(String oppRecId){
+
         QuoteWrapper quoteInfo = new QuoteWrapper();
         BillingWrapper billingInfo = new BillingWrapper();
         ShippingWrapper shippingInfo = new ShippingWrapper();
-        system.debug('oppRecId'+ oppRecId);
-        Opportunity oppRec = [SELECT Id, Bill_to_Account__c, Bill_to_Account__r.Name,AccountId,
-                              Account.BillingStreet, Account.BillingCity, 
-                              Account.BillingState, Account.BillingPostalCode, Account.BillingCountry,
-                              Account.ShippingStreet, Account.ShippingCity, Account.ShippingState, 
-                              Account.ShippingPostalCode, Account.ShippingCountry,
-                              License_Count__c,License_Type__c,Term__c,Start_Date__c,
-                              End_Date__c,Account.Billing_Email__c
-                              
-                              FROM Opportunity WHERE Id =:  oppRecId];
-        system.debug(oppRec);
+
+        Opportunity oppRec = [SELECT Id, Bill_to_Account__c,AccountId,Account.Name,Auto_Renew__c,License_Count__c,License_Type__c,Term__c,Start_Date__c,End_Date__c,Account.Billing_Email__c,Bill_to_Account__r.Name,
+                             Bill_to_Account__r.BillingStreet,Bill_to_Account__r.BillingCity,Bill_to_Account__r.BillingState,Bill_to_Account__r.BillingPostalCode,Bill_to_Account__r.BillingCountry,
+                            Account.BillingStreet, Account.BillingCity, Account.BillingState, Account.BillingPostalCode, Account.BillingCountry,
+                            Account.ShippingStreet, Account.ShippingCity, Account.ShippingState, Account.ShippingPostalCode, Account.ShippingCountry
+                            FROM Opportunity WHERE Id =:  oppRecId];
         
         
         if(oppRec != null){
+
             if(oppRec.Bill_to_Account__c != null){
-                Account accRec = [SELECT Id, BillingStreet, BillingCity, 
-                                  BillingState, BillingPostalCode, BillingCountry
-                                  FROM Account WHERE Id =:  oppRec.Bill_to_Account__c];
-                
-                billingInfo.street = accRec.BillingStreet;
-                billingInfo.city = accRec.BillingCity;
-                billingInfo.state = accRec.BillingState;
-                billingInfo.postalCode = accRec.BillingPostalCode;
-                billingInfo.country = accRec.BillingCountry;
+
+                billingInfo.street = oppRec.Bill_to_Account__r.BillingStreet;
+                billingInfo.city = oppRec.Bill_to_Account__r.BillingCity;
+                billingInfo.state = oppRec.Bill_to_Account__r.BillingState;
+                billingInfo.postalCode = oppRec.Bill_to_Account__r.BillingPostalCode;
+                billingInfo.country = oppRec.Bill_to_Account__r.BillingCountry;
+
+                quoteInfo.billingEmail = oppRec.Bill_to_Account__r.Billing_Email__c;
+                quoteInfo.billingName = oppRec.Bill_to_Account__r.Name;
+                quoteInfo.billToAccountId = oppRec.Bill_to_Account__c;
             }
             else{
                 billingInfo.street = oppRec.Account.BillingStreet;
@@ -63,6 +61,11 @@ public with sharing class CreateQuoteController {
                 billingInfo.state = oppRec.Account.BillingState;
                 billingInfo.postalCode = oppRec.Account.BillingPostalCode;
                 billingInfo.country = oppRec.Account.BillingCountry;
+
+                quoteInfo.billingEmail = oppRec.Account.Billing_Email__c;
+                quoteInfo.billingName = oppRec.Account.Name;
+                quoteInfo.billToAccountId = oppRec.AccountId;
+
             }
             
             shippingInfo.street = oppRec.Account.ShippingStreet;
@@ -73,20 +76,23 @@ public with sharing class CreateQuoteController {
             
             quoteInfo.billing = billingInfo;
             quoteInfo.shipping = shippingInfo;
-            quoteInfo.billingEmail = oppRec.Account.Billing_Email__c;
+            quoteInfo.autoRenew = oppRec.Auto_Renew__c;
             quoteInfo.licenseCount = oppRec.License_Count__c;
             quoteInfo.licenseType = oppRec.License_Type__c;
             quoteInfo.billingTerms = oppRec.Term__c;
             quoteInfo.startDate = oppRec.Start_Date__c;
-            if(oppRec.License_Type__c == 'Monthly'){
-                quoteInfo.endDate = oppRec.Start_Date__c.addMonths(1);
-            }
-            if(oppRec.License_Type__c == 'Annual'){
-                quoteInfo.endDate = oppRec.Start_Date__c.addYears(1);
+
+            if(oppRec.Start_Date__c != null){
+                if(oppRec.License_Type__c == 'Monthly'){
+                    quoteInfo.endDate = oppRec.Start_Date__c.addMonths(1);
+                }
+                if(oppRec.License_Type__c == 'Yearly'){
+                    quoteInfo.endDate = oppRec.Start_Date__c.addYears(1);
+                }
             }
             quoteInfo.oppId = oppRec.Id;
             quoteInfo.accId = oppRec.Account.Id;
-            quoteInfo.billingName = oppRec.Bill_to_Account__r.Name;
+
             
             List<Contact> contactList = [select Id,Email,Phone from Contact 
                                          where Primary_Contact__c =: true
@@ -120,6 +126,8 @@ public with sharing class CreateQuoteController {
         @AuraEnabled
         public String accId{get;set;}
         @AuraEnabled
+        public Boolean autoRenew{get;set;}
+        @AuraEnabled
         public Decimal licenseCount{get;set;}
         @AuraEnabled
         public String licenseType{get;set;}
@@ -137,6 +145,9 @@ public with sharing class CreateQuoteController {
         public String conId{get;set;}
         @AuraEnabled
         public String email{get;set;}
+        @AuraEnabled
+        public String billToAccountId{get;set;}
+        
     }
     
     public class BillingWrapper{

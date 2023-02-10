@@ -1,41 +1,41 @@
 <!-- sldsValidatorIgnore -->
-<!-- sldsValidatorIgnore -->
-<!-- sldsValidatorIgnore -->
-<!-- sldsValidatorIgnore -->
-<!-- sldsValidatorIgnore -->
 <template>
-        <lightning-layout>
-            <lightning-layout-item size="8" >
-                <lightning-input type="text" data-id="txtEmailAddress" label="Email" required="true">
-                </lightning-input>
-            </lightning-layout-item>
-            <lightning-layout-item size="4">
-                <br/>
-                <lightning-button class="slds-float_right" label="Search" onclick={handleEmailInput} variant="brand"></lightning-button>
-            </lightning-layout-item>
-            
-        </lightning-layout>
-        <!--<lightning-layout class="slds-p-top_large">
-            
-            <lightning-layout-item size="12">
-                <lightning-button class="slds-float_right" label="Search" onclick={handleEmailInput} variant="brand"></lightning-button>
-            </lightning-layout-item>
-        </lightning-layout>
-    -->
-     
-       
-            <div class="slds-m-around_medium slds-scrollable--y" style="height:16rem">
-                <template if:true={data}>
-                    <lightning-datatable
-                        data={data}
-                        columns={columns}
-                        key-field="id"
-                        hide-checkbox-column
-                    >
-                    </lightning-datatable>
-                </template>
-                <template if:true={error}>
-                    {error}
-                </template>
-            </div>
+    <lightning-layout>
+        <lightning-layout-item size="8" >
+            <lightning-input type="text" data-id="txtEmailAddress" label="Email" required="true">
+            </lightning-input>
+        </lightning-layout-item>
+        <lightning-layout-item size="4">
+            <br/>
+            <lightning-button class="slds-float_right" label="Search" onclick={handleEmailInput} variant="brand"></lightning-button>
+        </lightning-layout-item>
+    </lightning-layout>
+    
+    <div class="slds-m-top_x-small slds-m-bottom_small slds-scrollable--y" style="height:20rem">
+        <template if:true={data}>
+            <lightning-datatable
+                data={data}
+                columns={columns}
+                key-field="id"
+                onrowselection={getSelectedIdAction}
+            >
+            </lightning-datatable>
+        </template>
+        <template if:true={error}>
+            {error}
+        </template>
+    </div>
+
+    <div class="slds-clearfix">
+        <lightning-button title="Delete" 
+            label="Delete" 
+            size="small" 
+            variant="brand" 
+            icon-name="utility:delete" 
+            icon-position="right" 
+            onclick={deleteRowAction}
+            class="slds-float_right">
+        </lightning-button>
+    </div>
+
 </template>
