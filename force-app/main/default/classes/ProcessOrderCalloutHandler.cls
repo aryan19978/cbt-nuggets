@@ -16,7 +16,10 @@ public class ProcessOrderCalloutHandler {
             string resGetBody = res.getBody();
             system.debug('resGetBody Process Order' + resGetBody);
             resGetBody = resGetBody.replace('id', 'subId');
-            ProcessOrderResponseWrapper jsonStrToWrapper=  (ProcessOrderResponseWrapper) System.JSON.deserialize(resGetBody, ProcessOrderResponseWrapper.class);
+            ProcessOrderResponseWrapper jsonStrToWrapper;
+            
+            jsonStrToWrapper=  (ProcessOrderResponseWrapper) System.JSON.deserialize(resGetBody, ProcessOrderResponseWrapper.class);
+            system.debug('jsonStrToWrapper ' + jsonStrToWrapper);
             ProcessOrderResponseWrapper response = (ProcessOrderResponseWrapper)jsonStrToWrapper; 
             system.debug('response '+ response);
             
@@ -41,7 +44,6 @@ public class ProcessOrderCalloutHandler {
                        responseMap.put('adeptCustomerIdCheck','Adept Customer Id('+ response.endCustomerAdeptId+') does not match with Account Adept Customer Id('+accRec.Adept_Customer_Id__c+').'); 
                      }
                 }
-
                 else{
                     accRec.Adept_Customer_Id__c = response.endCustomerAdeptId;
                     update accRec;
@@ -96,12 +98,19 @@ public class ProcessOrderCalloutHandler {
             }
             system.debug('response' + response);
             responseMap.put('result', 'Process Order Successful.');
-            responseMap.put('responseType', 'success');                 
+            responseMap.put('responseType', 'success');
+            List<String> endDateList = response.subscription.attrs.items[0].endDate.split('T');
+            responseMap.put('css_EndDate', endDateList[0]);
+            responseMap.put('css_LicenseType', 'success');
+            responseMap.put('css_Quantity', String.valueof(response.subscription.attrs.items[0].quantity));
+            responseMap.put('rss_StartDate', 'success');
+            responseMap.put('rss_LicenseType', 'success');
+            responseMap.put('rss_Quantity', 'success');
             return responseMap;
         }
         Catch(Exception ex){
             HandleExceptionError.LogException('ProcessOrderCalloutHandler','makeHttpCallout',inputData.get('oppId'),ex,requestBody,res.getBody());
-            responseMap.put('result', res.getBody());
+            responseMap.put('result', ex.getCause() + ex.getMessage() + ex.getTypeName() + '\n ******** Response*******'+ res.getBody());
             responseMap.put('responseType', 'warning');                 
             return responseMap;
         }
@@ -109,7 +118,6 @@ public class ProcessOrderCalloutHandler {
     
     public static String createInputRequest(Map<String, String> inputData){
         
-
         Opportunity oppdata = [ select id , AccountId, Bill_to_Account__c,Account.Name,
                                 Bill_to_Account__r.Name, Bill_to_Account__r.Billing_Email__c,
                                 Bill_to_Account__r.Phone, Bill_to_Account__r.BillingStreet,
@@ -124,6 +132,7 @@ public class ProcessOrderCalloutHandler {
 		List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
 
         /**********************Initializing wrappers************* */
+        
         ContractDetailWrapper contractDetailData = new ContractDetailWrapper();
         List<lineItemWrapper> lineItemDataList = new List<lineItemWrapper>();
         BillToWrapperRequest billToData = new BillToWrapperRequest();
@@ -140,7 +149,7 @@ public class ProcessOrderCalloutHandler {
         if(oppdata != null)
         {
             Contact[] conListOwner =  [Select id ,firstName, LastName, Email from Contact
-                                where AccountId = : quoteList[0].BillToAccount_Id__c AND (Owner__c = true OR Admin__c = true)];
+                                where AccountId = : quoteList[0].AccountId AND (Owner__c = true OR Primary_Contact__c = true)];
             if(conListOwner.size()>0){
                 ownerData.firstName = conListOwner[0].firstName;
                 ownerData.lastName = conListOwner[0].LastName;
@@ -154,6 +163,7 @@ public class ProcessOrderCalloutHandler {
         if(quoteList.size()>0){
 
             /***********************setting line item data ************* */
+            String startDate ;
             for(QuoteLineItem qliRec : quoteList[0].QuoteLineItems){
                 lineItemWrapper lineItemData = new lineItemWrapper();
                 lineItemData.productId = qliRec.Product2.productcode;
@@ -161,7 +171,8 @@ public class ProcessOrderCalloutHandler {
                 lineItemData.quantity = qliRec.Quantity;
                 lineItemData.percentDiscount = qliRec.Discount != null ? qliRec.Discount/100 : 0;
                 lineItemData.unitPrice = qliRec.Original_Price__c ;
-                lineItemData.startDate = String.valueof(qliRec.Start_Date__c);
+                startDate = String.valueof(qliRec.Start_Date__c);
+                lineItemData.startDate = startDate;
                 lineItemDataList.add(lineItemData);
 
                 //setting up admin data
@@ -179,7 +190,7 @@ public class ProcessOrderCalloutHandler {
             lineItemData3.quantity = 1 ;
             lineItemData3.percentDiscount = 0.00;
             lineItemData3.unitPrice = quoteList[0].Tax ;
-            lineItemData3.startDate = String.valueof(quoteList[0].Start_Date__c);
+            lineItemData3.startDate = startDate;//String.valueof(quoteList[0].Start_Date__c);
             
             lineItemDataList.add(lineItemData3);
             
@@ -236,25 +247,27 @@ public class ProcessOrderCalloutHandler {
             /********************************************************** */
         } 
         
-
-        ProcessOrderRequestWrapper data = new ProcessOrderRequestWrapper();
-
-        data.opportunityId =  inputData.get('oppId');        
-        data.billTo = billToData;
-        data.shipTo = shipToData;
-        data.owner = ownerData;
-        data.contractDetails = contractDetailData;
-        if(adminData.lastName!=null && adminData.email !=null)
-        {
+        if(adminData.lastName!= null && adminData.email !=null && adminData.firstName != null){
+            ProcessOrderRequestWrapper data = new ProcessOrderRequestWrapper();
+            data.opportunityId =  inputData.get('oppId');        
+            data.billTo = billToData;
+            data.shipTo = shipToData;
+            data.owner = ownerData;
+            data.contractDetails = contractDetailData;
             data.accountAdmin = adminData;
+            String jsonStr = JSON.serializePretty(data);
+            return jsonStr;
         }
-        
-        system.debug(' data.billTo ' +  data.billTo);
-        system.debug(' data.shipTo ' +  data.shipTo);
-
-        String jsonStr = JSON.serializePretty(data);
-
-        return jsonStr;
+        else{
+            ProcessOrderRequestWithoutAdminWrapper data = new ProcessOrderRequestWithoutAdminWrapper();
+            data.opportunityId =  inputData.get('oppId');        
+            data.billTo = billToData;
+            data.shipTo = shipToData;
+            data.owner = ownerData;
+            data.contractDetails = contractDetailData;
+            String jsonStr = JSON.serializePretty(data);
+            return jsonStr;
+        }
     }
     
     public static List<Quote> getSyncedQuoteForOpp( String oppId){
@@ -274,13 +287,35 @@ public class ProcessOrderCalloutHandler {
         Public String invoiceId;
         Public String endCustomerAdeptId;
         Public SubscriptionResponseWrapper subscription;
+        Public RenewalDetailsResponseWrapper renewalDetails;
         Public String message;
+    }
+    
+    public class RenewalDetailsResponseWrapper{
+        Public String renewalDate; 
+        Public String renewalPeriod;
+        Public List<RenewalItemsResponseWrapper> items;
+    }
+    
+    Public class RenewalItemsResponseWrapper{
+        Public Decimal unitPrice;
+        Public String productFamilyId;
+        Public Decimal total;
+        Public Integer quantity;
+        Public String productId;
+        Public String endDate;
+        Public String description;
+        Public Integer quantityPurchased;
+        Public String startDate;
+        Public Integer percentDiscount;
+            
     }
     
     Public class SubscriptionResponseWrapper{
         Public String subid;
         Public String custId;
         Public String endCustId;
+        Public String renewalPeriod;
         Public String created;
         Public String updated;
         Public AttrsResponseWrapper attrs;
@@ -288,6 +323,7 @@ public class ProcessOrderCalloutHandler {
     
     Public class AttrsResponseWrapper{
         Public Boolean autorenew;
+        Public String renewDate;
         Public List<ItemsResponseWrapper> items;
         Public String billTo;
         Public String shipTo;
@@ -297,7 +333,7 @@ public class ProcessOrderCalloutHandler {
         Public String productFamilyId;
         Public Decimal unitPrice;
         Public Decimal quantity;
-        Public Id productId;
+        Public String productId;
         Public Boolean freeTrial;
         Public String endDate;
         Public Decimal durationOverride;
@@ -306,14 +342,24 @@ public class ProcessOrderCalloutHandler {
     }
     
     Public class ProcessOrderRequestWrapper{
-        Public string apiKey;
-        Public string env;
+        //Public string apiKey;
+        //Public string env;
         Public Id opportunityId;
         Public BillToWrapperRequest billTo;
         Public ShipToWrapperRequest shipTo;
         Public OwnerWrapper owner;
         Public ContractDetailWrapper contractDetails;
         Public accountAdminWrapper accountAdmin;
+    }
+    
+    Public class ProcessOrderRequestWithoutAdminWrapper{
+        //Public string apiKey;
+        //Public string env;
+        Public Id opportunityId;
+        Public BillToWrapperRequest billTo;
+        Public ShipToWrapperRequest shipTo;
+        Public OwnerWrapper owner;
+        Public ContractDetailWrapper contractDetails;
     }
 
     public class  accountAdminWrapper{

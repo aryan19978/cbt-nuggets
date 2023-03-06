@@ -34,7 +34,7 @@ public with sharing class CreateQuoteController {
         BillingWrapper billingInfo = new BillingWrapper();
         ShippingWrapper shippingInfo = new ShippingWrapper();
 
-        Opportunity oppRec = [SELECT Id, Bill_to_Account__c,AccountId,Account.Name,Auto_Renew__c,License_Count__c,License_Type__c,Term__c,Start_Date__c,End_Date__c,Account.Billing_Email__c,Bill_to_Account__r.Name,
+        Opportunity oppRec = [SELECT Id, Bill_to_Account__c,AccountId,Account.Name,Auto_Renew__c,License_Count__c,License_Type__c,Term__c,Start_Date__c,End_Date__c,Account.Billing_Email__c,Bill_to_Account__r.Billing_Email__c,Bill_to_Account__r.Name,
                              Bill_to_Account__r.BillingStreet,Bill_to_Account__r.BillingCity,Bill_to_Account__r.BillingState,Bill_to_Account__r.BillingPostalCode,Bill_to_Account__r.BillingCountry,
                             Account.BillingStreet, Account.BillingCity, Account.BillingState, Account.BillingPostalCode, Account.BillingCountry,
                             Account.ShippingStreet, Account.ShippingCity, Account.ShippingState, Account.ShippingPostalCode, Account.ShippingCountry

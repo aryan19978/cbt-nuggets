@@ -8,7 +8,14 @@ global class ProcessOrderExternalCallout
         @InvocableVariable public String result;
         @InvocableVariable public String responseType;
         @InvocableVariable public String adeptCustomerIdCheck;
+        @InvocableVariable public String css_EndDate;
+        @InvocableVariable public String css_LicenseType;
+        @InvocableVariable public String css_Quantity;
+        @InvocableVariable public String rss_StartDate;
+        @InvocableVariable public String rss_LicenseType;
+        @InvocableVariable public String rss_Quantity;
     }
+
     
     @InvocableMethod(callout=true label='ProcessOrderExternalCallout')    
     public static List<OutputVariables> makeProcessOrderExternalCallout(List<InputVariables> params) {
@@ -24,6 +31,14 @@ global class ProcessOrderExternalCallout
         output.responseType = responseMap.get('responseType');
         output.adeptCustomerIdCheck = responseMap.get('adeptCustomerIdCheck');
         
+        if(responseMap.get('result')  == 'Process Order Successful.'){
+            output.css_EndDate = responseMap.get('css_EndDate');
+            output.css_LicenseType = responseMap.get('css_LicenseType');
+            output.css_Quantity = responseMap.get('css_Quantity');
+            output.rss_StartDate = responseMap.get('rss_StartDate');
+            output.rss_LicenseType = responseMap.get('rss_LicenseType');
+            output.rss_Quantity = responseMap.get('rss_Quantity');
+        }
         results.add(output);
         return results;
     }

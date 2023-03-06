@@ -15,9 +15,13 @@ public class TrialCalloutHandler {
     }
     
     public static String createInputRequest(Map<String, String> inputData){
-        TrialPurchaseDetails purchaseDetail = new TrialPurchaseDetails();
+
+            TrialPurchaseDetails purchaseDetail = new TrialPurchaseDetails();
             purchaseDetail.startDate = inputData.get('startDate');
             purchaseDetail.quantity = integer.valueof(inputData.get('licenseCount'));
+            // purchaseDetail.newEndDate = integer.valueof(inputData.get('licenseCount')); // string
+            // purchaseDetail.durationOverride = integer.valueof(inputData.get('licenseCount')); //integer
+
             TrialCustomerDetails customerDetail = new TrialCustomerDetails(); 
             customerDetail.salesforceCustomerId = inputData.get('accountId');
             //customerDetail.salesforceContactId = '';
@@ -25,9 +29,10 @@ public class TrialCalloutHandler {
             customerDetail.lastName = inputData.get('lastName');
             customerDetail.email = inputData.get('email');
             customerDetail.company = inputData.get('accountName');
+            // customerDetail.salesforceCustomerId = inputData.get('accountName'); // string
+            // customerDetail.adeptCustomerId = inputData.get('accountName');  // string
+
             TrialWrapper trialdata = new TrialWrapper();
-            trialdata.apiKey = HttpCalloutUtility.getValueCustomMetadata('apiKey');
-            trialdata.env =  HttpCalloutUtility.getValueCustomMetadata('env');
             trialdata.purchaseDetails = purchaseDetail;
             trialdata.customerDetails = customerDetail;
         	system.debug(JSON.serializePretty(trialdata));
@@ -37,8 +42,8 @@ public class TrialCalloutHandler {
     
     // create json for trial endpoint
     Public class TrialWrapper{
-        Public String apiKey;
-        Public String env;
+        // Public String apiKey;
+        // Public String env;
         Public TrialPurchaseDetails purchaseDetails;
         Public TrialCustomerDetails customerDetails;
     }

@@ -5,7 +5,8 @@ global class TrialExternalCallout
         @InvocableVariable public String calloutType;
         @InvocableVariable public String startDate;
         @InvocableVariable public String licenseCount;
-        @InvocableVariable public String adminName;
+        @InvocableVariable public String adminFirstName;
+        @InvocableVariable public String adminLastName;
         @InvocableVariable public String adminEmail;
         @InvocableVariable public String durationOverride;
         @InvocableVariable public String licenseType;
@@ -22,7 +23,8 @@ global class TrialExternalCallout
         String calloutType = params[0].calloutType;
         String durationOverride = params[0].durationOverride;
         String adminEmail = params[0].adminEmail;
-        String adminName = params[0].adminName;
+        String adminFirstName = params[0].adminFirstName;
+        String adminLastName = params[0].adminLastName;
         String licenseCount = params[0].licenseCount;
         String licenseType = params[0].licenseType;
         String startDate = params[0].startDate;
@@ -32,10 +34,13 @@ global class TrialExternalCallout
             Account accRec = [Select id, name, Subscription_Id__c, Adept_Customer_Id__c,(Select id,FirstName,LastName,Email from Contacts where Primary_Contact__c  = true order by LastModifiedDate Desc) from Account where id =: oppRec.AccountId];  
             
             Map<String, String> inputData = new Map<String, String>();
+
             inputData.put('durationOverride', durationOverride);
             inputData.put('licenseCount', licenseCount);
             inputData.put('licenseType', licenseType);
             inputData.put('startDate', startDate);
+            inputData.put('newEndDate', startDate);
+
             if(accRec.Contacts.size()>0){
                 inputData.put('firstName', accRec.Contacts[0] != null ? accRec.Contacts[0].FirstName : '' );
                 inputData.put('lastName', accRec.Contacts[0] != null ? accRec.Contacts[0].LastName : '');
@@ -48,12 +53,16 @@ global class TrialExternalCallout
                 inputData.put('email', adminEmail);
                 inputData.put('conId', '');
             }
+
             inputData.put('accountId', oppRec.AccountId);
             inputData.put('accountName', oppRec.Account.Name);
             inputData.put('calloutType', calloutType);
             inputData.put('oppId', oppId);
+
             inputData.put('adminEmail', adminEmail);
-            inputData.put('adminName', adminName);
+            inputData.put('adminFirstName', adminFirstName);
+            inputData.put('adminLastName', adminLastName);
+
             system.debug('input data Map ' + inputData);
             
             //make callout
@@ -84,7 +93,7 @@ global class TrialExternalCallout
                         if(String.isBlank(inputData.get('adminEmail'))){
                             con.Lastname = inputData.get('adminEmail'); 
                         }else{
-                            con.Lastname = adminName;
+                            con.Lastname = adminLastName;
                         }
                         insert con;
                     }
