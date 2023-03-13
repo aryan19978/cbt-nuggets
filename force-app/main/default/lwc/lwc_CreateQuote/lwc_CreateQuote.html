@@ -20,29 +20,31 @@
                         </lightning-input-field>
                         <lightning-input-field field-name="AccountId" value={accId} disabled='true'>
                         </lightning-input-field>
+                        <lightning-input-field field-name="Billing_Email__c" value={billingEmail} required>
+                        </lightning-input-field>
                         <lightning-input-field field-name="License_Type__c" value={licenseType} required onchange={handleLicenseTypeChange}>
                         </lightning-input-field>
-                        <lightning-input-field field-name="License_Count__c" value={licenseCount}>
+                        
+                        <lightning-input-field field-name="Start_Date__c" value={startDate} required onchange={handleStartDateChange}>
                         </lightning-input-field>
-                        <lightning-input-field field-name="Payment_Terms_Method__c" required>
+                        <lightning-input-field field-name="End_Date__c" value={endDate} required>
                         </lightning-input-field>
                         
                     </div>
 
                     <div class="slds-col slds-size_1-of-2">
-                        <lightning-input-field field-name="Auto_Renew__c" value={autoRenew}>
+                        <lightning-input-field field-name="Payment_Terms_Method__c" required>
                         </lightning-input-field>
                         <lightning-input-field field-name="Billing_Terms__c" value={billingTerms}>
                         </lightning-input-field>
-                        <lightning-input-field field-name="Start_Date__c" value={startDate} required onchange={handleStartDateChange}>
-                        </lightning-input-field>
-                        <lightning-input-field field-name="End_Date__c" value={endDate} required>
-                        </lightning-input-field>
                         <lightning-input-field field-name="BillingName" value={billingName}>
                         </lightning-input-field>
-                        <lightning-input-field field-name="Billing_Email__c" value={billingEmail} required>
+                        <lightning-input-field field-name="License_Count__c" value={licenseCount}>
                         </lightning-input-field>
-                        
+                        <lightning-input-field field-name="Auto_Renew__c" value={autoRenew}>
+                        </lightning-input-field>
+                        <lightning-input-field field-name="Early_Renewal__c" value={earlyRenewal}>
+                        </lightning-input-field>
                     </div>
                 </div>
 

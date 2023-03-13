@@ -23,6 +23,9 @@ public class ProcessOrderCalloutHandler {
             ProcessOrderResponseWrapper response = (ProcessOrderResponseWrapper)jsonStrToWrapper; 
             system.debug('response '+ response);
             
+            system.debug(response.subscription.attrs.items[0].productId);
+            
+            
             if(response.invoiceId== Null){
                 responseMap.put('result',res.getBody());
                 responseMap.put('responseType', 'warning');                 
@@ -58,7 +61,7 @@ public class ProcessOrderCalloutHandler {
                 update oppRec;
                 
                 // check if renewal opportunity exist
-                List<opportunity> renewalOppLst = [select id,AccountId from opportunity 
+                List<opportunity> renewalOppLst = [select id,AccountId,Account.PrePay_Only__c from opportunity 
                                                    where AccountId =: oppRec.AccountId
                                                    and Type =: 'Renewal' order by CreatedDate Desc];
                 
@@ -70,6 +73,11 @@ public class ProcessOrderCalloutHandler {
                     Date subEnddate = date.newinstance(subEnddt.year(), subEnddt.month(), subEnddt.day());
                     newQuote.Start_Date__c = subEnddate;
                     newQuote.OpportunityId = renewalOppLst[0].id;
+                    if(renewalOppLst[0].Account.PrePay_Only__c == true){
+                        newQuote.Payment_Terms_Method__c = 'Due Upon Receipt';
+                        newQuote.Billing_Terms__c = 'Due Upon Receipt';
+                    }
+                    system.debug('newQuote'+ newQuote);
                     insert  newQuote;
                     renewalOppLst[0].SyncedQuoteId = newQuote.id;
                     update renewalOppLst[0];
@@ -99,18 +107,47 @@ public class ProcessOrderCalloutHandler {
             system.debug('response' + response);
             responseMap.put('result', 'Process Order Successful.');
             responseMap.put('responseType', 'success');
-            List<String> endDateList = response.subscription.attrs.items[0].endDate.split('T');
-            responseMap.put('css_EndDate', endDateList[0]);
-            responseMap.put('css_LicenseType', 'success');
-            responseMap.put('css_Quantity', String.valueof(response.subscription.attrs.items[0].quantity));
-            responseMap.put('rss_StartDate', 'success');
-            responseMap.put('rss_LicenseType', 'success');
-            responseMap.put('rss_Quantity', 'success');
+            
+            
+            if(response.subscription != null){
+                List<String> endDateList = response.subscription.attrs.items[0].endDate.split('T');
+                
+                String productId = response.subscription.attrs.items[0].productId;
+                Product2 prd = [SELECT Id, Name, ProductCode FROM Product2 where ProductCode =: productId];
+                List<String> licenseTyppeList = prd.Name.split('-');    
+                
+                responseMap.put('css_EndDate', endDateList[0]);
+                responseMap.put('css_LicenseType', licenseTyppeList[0]);
+                responseMap.put('css_Quantity', String.valueof(response.subscription.attrs.items[0].quantity));
+            }
+            else{
+                responseMap.put('css_EndDate', '');
+                responseMap.put('css_LicenseType', '');
+                responseMap.put('css_Quantity', '');
+            }
+            
+            if(response.renewalDetails != null){
+                List<String> startDateList = response.renewalDetails.items[0].startDate.split('T');
+                
+                String productId = response.renewalDetails.items[0].productId;
+                Product2 prd = [SELECT Id, Name, ProductCode FROM Product2 where ProductCode =: productId];
+                List<String> licenseTyppeList = prd.Name.split('-');  
+                
+                responseMap.put('rss_StartDate', startDateList[0]);
+                responseMap.put('rss_LicenseType', licenseTyppeList[0]);
+                responseMap.put('rss_Quantity', String.valueof(response.renewalDetails.items[0].quantity));
+            }
+            else{
+                responseMap.put('rss_StartDate', '');
+                responseMap.put('rss_LicenseType', '');
+                responseMap.put('rss_Quantity', '');
+            }
+            
             return responseMap;
         }
         Catch(Exception ex){
             HandleExceptionError.LogException('ProcessOrderCalloutHandler','makeHttpCallout',inputData.get('oppId'),ex,requestBody,res.getBody());
-            responseMap.put('result', ex.getCause() + ex.getMessage() + ex.getTypeName() + '\n ******** Response*******'+ res.getBody());
+            responseMap.put('result',ex.getMessage() + res.getBody());
             responseMap.put('responseType', 'warning');                 
             return responseMap;
         }
@@ -200,6 +237,7 @@ public class ProcessOrderCalloutHandler {
             /***********************seting contract data ************* */
 
             contractDetailData.paymentTerm = quoteList[0].Billing_Terms__c ;
+            contractDetailData.earlyRenewal = quoteList[0].Early_Renewal__c ;
             contractDetailData.isUniversalPayment = true;
             contractDetailData.lineItems = lineItemDataList;
 
@@ -256,6 +294,7 @@ public class ProcessOrderCalloutHandler {
             data.contractDetails = contractDetailData;
             data.accountAdmin = adminData;
             String jsonStr = JSON.serializePretty(data);
+            jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
             return jsonStr;
         }
         else{
@@ -266,14 +305,16 @@ public class ProcessOrderCalloutHandler {
             data.owner = ownerData;
             data.contractDetails = contractDetailData;
             String jsonStr = JSON.serializePretty(data);
+            jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
             return jsonStr;
         }
     }
     
     public static List<Quote> getSyncedQuoteForOpp( String oppId){
     
-    Quote[] quoteList = [select id,Tax ,Opportunity.Tax_Exempt__c,Start_Date__c,AccountId,Account.Name,BillToAccount_Id__c,Admin_Email__c,Admin_First_Name__c,Admin_Last_Name__c,
-                         License_Type__c,License_Count__c,
+    Quote[] quoteList = [select id,Tax ,Opportunity.Tax_Exempt__c,Start_Date__c,AccountId,Account.Name,
+                         BillToAccount_Id__c,Admin_Email__c,Admin_First_Name__c,Admin_Last_Name__c,
+                         License_Type__c,License_Count__c,Early_Renewal__c,
                          Billing_Email__c,Billing_Terms__c,BillingName,
                          BillingStreet,BillingCity,BillingState,BillingPostalCode,BillingCountry,
                          ShippingStreet,ShippingCity,ShippingState,ShippingPostalCode,ShippingCountry,
@@ -371,6 +412,7 @@ public class ProcessOrderCalloutHandler {
     public class ContractDetailWrapper{
         Public string paymentTerm;
         Public boolean isUniversalPayment;
+        Public boolean earlyRenewal;
         Public List<lineItemWrapper> lineItems;
     }
     

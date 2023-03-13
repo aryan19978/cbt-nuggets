@@ -26,6 +26,7 @@ export default class Lwc_CreateQuote extends NavigationMixin(LightningElement) {
     @track billingEmail;
     @track billingName;
     @track billToAccountId;
+    @track earlyRenewal;
 
     @track billingAddress = {
         street: '',
@@ -70,6 +71,7 @@ export default class Lwc_CreateQuote extends NavigationMixin(LightningElement) {
                 this.billingName = result.billingName;
                 this.billingEmail = result.billingEmail;
                 this.billToAccountId = result.billToAccountId;
+                this.earlyRenewal = result.earlyRenewal;
                 this.billingAddress.street = result.billing.street;
                 this.billingAddress.city = result.billing.city;
                 this.billingAddress.state = result.billing.state;

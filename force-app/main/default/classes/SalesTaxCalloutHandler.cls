@@ -7,7 +7,7 @@ public class SalesTaxCalloutHandler {
     
     public static String createInputRequest(Map<String, String> inputData){
         Quote quoteRec = [select id,Tax,AccountId,BillingStreet,BillingCity, BillingState,
-                          BillingPostalCode,BillingCountry,
+                          BillingPostalCode,BillingCountry,Early_Renewal__c,
                           Account.Adept_Customer_Id__c 
                           from Quote where Id =: inputData.get('quoteId')];
             subscriptionlocation  location = new subscriptionlocation();
@@ -32,7 +32,6 @@ public class SalesTaxCalloutHandler {
             for(QuoteLineItem qliRec : qliRecList){
                 SubscriptionLineItem lineItem = new SubscriptionLineItem();
                 lineItem.productId = qliRec.Product2.productcode;
-                //lineItem.productFamilyId = '';
                 lineItem.quantity = qliRec.Quantity;
                 lineItem.percentDiscount = qliRec.Discount != null ? qliRec.Discount/100 : 0;
                 lineItem.unitPrice = qliRec.Original_Price__c ;
@@ -43,12 +42,14 @@ public class SalesTaxCalloutHandler {
             
             SubscriptionPurchaseDetail purchaseDetail = new SubscriptionPurchaseDetail();
             purchaseDetail.lineItems = lineItems;
+        	purchaseDetail.earlyRenewal = quoteRec.Early_Renewal__c;
             
             subscriptionWrapper data = new subscriptionWrapper();
             data.apiKey = HttpCalloutUtility.getValueCustomMetadata('apiKey');
             data.purchaseDetails = purchaseDetail;
             data.customerDetails = customerDetail;
             String jsonStr = JSON.serialize(data);
+        	jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
         	system.debug('Sales Tax Request' + jsonStr);
             return jsonStr;
     }
@@ -175,10 +176,10 @@ public class SalesTaxCalloutHandler {
     }
     Public class SubscriptionPurchaseDetail{
         Public List<SubscriptionLineItem> lineItems;
+        Public Boolean earlyRenewal;
     }
     Public class SubscriptionLineItem{
         Public String productId;
-        //Public String productFamilyId;
         Public Decimal quantity;
         Public Decimal percentDiscount;
         Public Decimal unitPrice;
