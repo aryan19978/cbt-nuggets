@@ -238,6 +238,7 @@ public class ProcessOrderCalloutHandler {
 
             contractDetailData.paymentTerm = quoteList[0].Billing_Terms__c ;
             contractDetailData.earlyRenewal = quoteList[0].Early_Renewal__c ;
+            contractDetailData.quoteType = quoteList[0].Quote_Type__c ;
             contractDetailData.isUniversalPayment = true;
             contractDetailData.lineItems = lineItemDataList;
 
@@ -314,7 +315,7 @@ public class ProcessOrderCalloutHandler {
     
     Quote[] quoteList = [select id,Tax ,Opportunity.Tax_Exempt__c,Start_Date__c,AccountId,Account.Name,
                          BillToAccount_Id__c,Admin_Email__c,Admin_First_Name__c,Admin_Last_Name__c,
-                         License_Type__c,License_Count__c,Early_Renewal__c,
+                         License_Type__c,License_Count__c,Early_Renewal__c,Quote_Type__c,
                          Billing_Email__c,Billing_Terms__c,BillingName,
                          BillingStreet,BillingCity,BillingState,BillingPostalCode,BillingCountry,
                          ShippingStreet,ShippingCity,ShippingState,ShippingPostalCode,ShippingCountry,
@@ -413,6 +414,7 @@ public class ProcessOrderCalloutHandler {
         Public string paymentTerm;
         Public boolean isUniversalPayment;
         Public boolean earlyRenewal;
+        Public string quoteType;
         Public List<lineItemWrapper> lineItems;
     }
     
