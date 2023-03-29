@@ -348,6 +348,12 @@
                     <elementReference>Get_Quote.Billing_Email__c</elementReference>
                 </value>
             </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Who do you want to email this invoice to?</stringValue>
+                </value>
+            </inputParameters>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>

@@ -25,7 +25,6 @@ public class ProcessOrderCalloutHandler {
             
             system.debug(response.subscription.attrs.items[0].productId);
             
-            
             if(response.invoiceId== Null){
                 responseMap.put('result',res.getBody());
                 responseMap.put('responseType', 'warning');                 
@@ -35,20 +34,23 @@ public class ProcessOrderCalloutHandler {
             String ResponseMessage='';
 
             try{
+                
+                List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
+                
                 Opportunity oppRec = [select id,StageName,Universal_Payment_Link__c,AccountId,Description,
                                       Invoice_Id__c,Subscription_Id__c,Adept_Customer_Id__c,Bill_to_Account__c,
-                                      Message__c,Reseller__c  from Opportunity where id = : inputData.get('oppId')];
+                                      Message__c,Reseller__c,Order_Id__c  from Opportunity where id = : inputData.get('oppId')];
 
                 Account accRec = [select id , Adept_Customer_Id__c,Subscription_Id__c 
                                   from ACCOUNT where Id =: oppRec.AccountId ];
 
                 if(accRec.Adept_Customer_Id__c != null){
-                    if(accRec.Adept_Customer_Id__c != response.endCustomerAdeptId){
-                       responseMap.put('adeptCustomerIdCheck','Adept Customer Id('+ response.endCustomerAdeptId+') does not match with Account Adept Customer Id('+accRec.Adept_Customer_Id__c+').'); 
+                    if(accRec.Adept_Customer_Id__c != response.subscription.endCustId){
+                       responseMap.put('adeptCustomerIdCheck','Adept Customer Id('+ response.subscription.endCustId+') does not match with Account Adept Customer Id('+accRec.Adept_Customer_Id__c+').'); 
                      }
                 }
                 else{
-                    accRec.Adept_Customer_Id__c = response.endCustomerAdeptId;
+                    accRec.Adept_Customer_Id__c = response.subscription.endCustId;
                     update accRec;
                 }
                     
@@ -56,16 +58,20 @@ public class ProcessOrderCalloutHandler {
                 oppRec.Universal_Payment_Link__c = response.universalPaymentLink;
                 oppRec.Invoice_Id__c = response.invoiceId;
                 oppRec.Subscription_Id__c = response.subscription.subId;
-                oppRec.Adept_Customer_Id__c = response.endCustomerAdeptId;
+                oppRec.Adept_Customer_Id__c = response.subscription.endCustId;
                 oppRec.Message__c = response.message;
+                if(quoteList.size()>0){
+                    oppRec.Order_Id__c = quoteList[0].QuoteNumber;
+                }
                 update oppRec;
                 
                 // check if renewal opportunity exist
-                List<opportunity> renewalOppLst = [select id,AccountId,Account.PrePay_Only__c from opportunity 
+                List<opportunity> renewalOppLst = [select id,AccountId,Account.PrePay_Only__c,
+                                                   Adept_Customer_Id__c from opportunity 
                                                    where AccountId =: oppRec.AccountId
                                                    and Type =: 'Renewal' order by CreatedDate Desc];
                 
-                List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
+                //List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
                 if(renewalOppLst.size()>0){
                     // renewal opp exist
                     Quote newQuote =  QuoteUtility.CloneQuote(quoteList[0].id);
@@ -75,11 +81,12 @@ public class ProcessOrderCalloutHandler {
                     newQuote.OpportunityId = renewalOppLst[0].id;
                     if(renewalOppLst[0].Account.PrePay_Only__c == true){
                         newQuote.Payment_Terms_Method__c = 'Due Upon Receipt';
-                        newQuote.Billing_Terms__c = 'Due Upon Receipt';
+                        newQuote.Billing_Terms__c = 'Net 0';
                     }
                     system.debug('newQuote'+ newQuote);
                     insert  newQuote;
                     renewalOppLst[0].SyncedQuoteId = newQuote.id;
+                    renewalOppLst[0].Adept_Customer_Id__c = response.subscription.endCustId;
                     update renewalOppLst[0];
                 }
                 else{
@@ -96,6 +103,7 @@ public class ProcessOrderCalloutHandler {
                     newOpp.Start_Date__c = date.newinstance(dT.year(), dT.month(), dT.day());
                     newOpp.Bill_to_Account__c = oppRec.Bill_to_Account__c;
                     newOpp.Reseller__c = oppRec.Reseller__c;
+                    newOpp.Adept_Customer_Id__c = response.subscription.endCustId;
                     insert newOpp;
                 }
             }
@@ -313,7 +321,7 @@ public class ProcessOrderCalloutHandler {
     
     public static List<Quote> getSyncedQuoteForOpp( String oppId){
     
-    Quote[] quoteList = [select id,Tax ,Opportunity.Tax_Exempt__c,Start_Date__c,AccountId,Account.Name,
+    Quote[] quoteList = [select id,QuoteNumber,Tax ,Opportunity.Tax_Exempt__c,Start_Date__c,AccountId,Account.Name,
                          BillToAccount_Id__c,Admin_Email__c,Admin_First_Name__c,Admin_Last_Name__c,
                          License_Type__c,License_Count__c,Early_Renewal__c,Quote_Type__c,
                          Billing_Email__c,Billing_Terms__c,BillingName,

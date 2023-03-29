@@ -47,7 +47,7 @@
         <locationX>182</locationX>
         <locationY>398</locationY>
         <defaultConnector>
-            <targetReference>Cancel_Service_Response</targetReference>
+            <targetReference>Deactivate_Invoice_Response</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -73,7 +73,7 @@
         <expression>{!$User.FirstName}  +&apos; &apos;+ {!$User.LastName} + &apos; Cancel Service&apos;</expression>
     </formulas>
     <interviewLabel>Cancel Service Screen Flow {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Cancel Service Screen Flow</label>
+    <label>Deactivate Invoice Screen Flow</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -99,7 +99,7 @@
         <locationX>50</locationX>
         <locationY>518</locationY>
         <connector>
-            <targetReference>Cancel_Service_Response</targetReference>
+            <targetReference>Deactivate_Invoice_Response</targetReference>
         </connector>
         <inputAssignments>
             <field>Description</field>
@@ -135,8 +135,8 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <screens>
-        <name>Cancel_Service</name>
-        <label>Cancel Service</label>
+        <name>Deactivate_Invoice</name>
+        <label>Deactivate Invoice</label>
         <locationX>182</locationX>
         <locationY>158</locationY>
         <allowBack>false</allowBack>
@@ -146,10 +146,10 @@
             <targetReference>CancelServiceExternalCallout</targetReference>
         </connector>
         <fields>
-            <name>Cancel_Service_Section1</name>
+            <name>Deactivate_Invoice_Section1</name>
             <fieldType>RegionContainer</fieldType>
             <fields>
-                <name>Cancel_Service_Section1_Column1</name>
+                <name>Deactivate_Invoice_Section1_Column1</name>
                 <fieldType>Region</fieldType>
                 <inputParameters>
                     <name>width</name>
@@ -160,7 +160,7 @@
                 <isRequired>false</isRequired>
             </fields>
             <fields>
-                <name>Cancel_Service_Section1_Column2</name>
+                <name>Deactivate_Invoice_Section1_Column2</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>Invoice_Id</name>
@@ -178,7 +178,7 @@
                 <isRequired>false</isRequired>
             </fields>
             <fields>
-                <name>Cancel_Service_Section1_Column3</name>
+                <name>Deactivate_Invoice_Section1_Column3</name>
                 <fieldType>Region</fieldType>
                 <inputParameters>
                     <name>width</name>
@@ -191,23 +191,23 @@
             <isRequired>false</isRequired>
             <regionContainerType>SectionWithoutHeader</regionContainerType>
         </fields>
-        <nextOrFinishButtonLabel>Cancel Service</nextOrFinishButtonLabel>
+        <nextOrFinishButtonLabel>Deactivate Invoice</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>Cancel_Service_Response</name>
-        <label>Cancel Service Response</label>
+        <name>Deactivate_Invoice_Response</name>
+        <label>Deactivate Invoice Response</label>
         <locationX>182</locationX>
         <locationY>734</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
-            <name>Cancel_Service_Response_Section1</name>
+            <name>Deactivate_Invoice_Response_Section1</name>
             <fieldType>RegionContainer</fieldType>
             <fields>
-                <name>Cancel_Service_Response_Section1_Column1</name>
+                <name>Deactivate_Invoice_Response_Section1_Column1</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>CancelServiceResponse</name>
@@ -241,10 +241,10 @@
             <regionContainerType>SectionWithoutHeader</regionContainerType>
         </fields>
         <fields>
-            <name>Cancel_Service_Response_Section2</name>
+            <name>Deactivate_Invoice_Response_Section2</name>
             <fieldType>RegionContainer</fieldType>
             <fields>
-                <name>Cancel_Service_Response_Section2_Column1</name>
+                <name>Deactivate_Invoice_Response_Section2_Column1</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>invoiceIdResponse</name>
@@ -265,7 +265,7 @@
                 <isRequired>false</isRequired>
             </fields>
             <fields>
-                <name>Cancel_Service_Response_Section2_Column2</name>
+                <name>Deactivate_Invoice_Response_Section2_Column2</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>Success</name>
@@ -306,7 +306,7 @@
         <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Cancel_Service</targetReference>
+            <targetReference>Deactivate_Invoice</targetReference>
         </connector>
     </start>
     <status>Active</status>

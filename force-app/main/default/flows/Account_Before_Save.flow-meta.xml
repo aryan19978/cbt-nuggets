@@ -34,7 +34,7 @@
         <name>Set_reseller_pricebook</name>
         <label>Set reseller pricebook</label>
         <locationX>314</locationX>
-        <locationY>791</locationY>
+        <locationY>911</locationY>
         <assignmentItems>
             <assignToReference>$Record.Price_Book__c</assignToReference>
             <operator>Assign</operator>
@@ -44,11 +44,77 @@
         </assignmentItems>
     </assignments>
     <assignments>
+        <description>copy billing address to shipping address</description>
+        <name>set_shipping_address</name>
+        <label>set shipping address</label>
+        <locationX>314</locationX>
+        <locationY>671</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingCity</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCity</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingCountry</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCountry</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingGeocodeAccuracy</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingGeocodeAccuracy</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingLatitude</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingLatitude</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingLongitude</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingLongitude</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingPostalCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingPostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingState</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingState</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.ShippingStreet</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStreet</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_Record_Type</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>set price book as standard price book</description>
         <name>Set_standard_pricebook</name>
         <label>Set standard pricebook</label>
         <locationX>50</locationX>
-        <locationY>791</locationY>
+        <locationY>911</locationY>
         <assignmentItems>
             <assignToReference>$Record.Price_Book__c</assignToReference>
             <operator>Assign</operator>
@@ -62,7 +128,7 @@
         <name>Check_Record_Type</name>
         <label>Check  Record Type</label>
         <locationX>314</locationX>
-        <locationY>671</locationY>
+        <locationY>791</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>is_Sales_record_type</name>
@@ -154,7 +220,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Check_Record_Type</targetReference>
+                <targetReference>set_shipping_address</targetReference>
             </connector>
             <label>Is Created</label>
         </rules>

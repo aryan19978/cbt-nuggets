@@ -181,30 +181,19 @@
                 <name>DownloadInvoice_Response_Section2_Column1</name>
                 <fieldType>Region</fieldType>
                 <fields>
-                    <name>InvoiceURL</name>
-                    <extensionName>flowruntime:url</extensionName>
-                    <fieldType>ComponentInstance</fieldType>
-                    <inputParameters>
-                        <name>label</name>
-                        <value>
-                            <stringValue>Invoice URL</stringValue>
-                        </value>
-                    </inputParameters>
-                    <inputParameters>
-                        <name>disabled</name>
-                        <value>
-                            <booleanValue>false</booleanValue>
-                        </value>
-                    </inputParameters>
-                    <inputParameters>
-                        <name>value</name>
-                        <value>
-                            <elementReference>res_signedUrl</elementReference>
-                        </value>
-                    </inputParameters>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-                    <isRequired>true</isRequired>
-                    <storeOutputAutomatically>true</storeOutputAutomatically>
+                    <name>Downloadurl</name>
+                    <fieldText>&lt;p&gt;&lt;a href=&quot;{!res_signedUrl}&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot;&gt;Download Invoice&lt;/a&gt;&lt;/p&gt;</fieldText>
+                    <fieldType>DisplayText</fieldType>
+                    <visibilityRule>
+                        <conditionLogic>and</conditionLogic>
+                        <conditions>
+                            <leftValueReference>res_responseType</leftValueReference>
+                            <operator>EqualTo</operator>
+                            <rightValue>
+                                <stringValue>success</stringValue>
+                            </rightValue>
+                        </conditions>
+                    </visibilityRule>
                 </fields>
                 <inputParameters>
                     <name>width</name>
@@ -219,7 +208,7 @@
         </fields>
         <nextOrFinishButtonLabel>Done</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
+        <showHeader>true</showHeader>
     </screens>
     <start>
         <locationX>50</locationX>

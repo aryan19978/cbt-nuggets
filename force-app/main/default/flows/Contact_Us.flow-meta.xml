@@ -463,7 +463,7 @@ Email: {!email}</interviewLabel>
             <targetReference>check_for_required_values</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <subflows>
         <name>create_case</name>
         <label>create case</label>

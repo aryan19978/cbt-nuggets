@@ -35,8 +35,6 @@ global class TrialExternalCallout
             
             Map<String, String> inputData = new Map<String, String>();
 
-            Date currentDate = Date.today();
-            Date newDate = currentDate.addDays(durationOverride);
             inputData.put('durationOverride', durationOverride);
             inputData.put('licenseCount', licenseCount);
             inputData.put('licenseType', licenseType);

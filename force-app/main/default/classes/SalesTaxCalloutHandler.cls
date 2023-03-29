@@ -32,6 +32,7 @@ public class SalesTaxCalloutHandler {
             for(QuoteLineItem qliRec : qliRecList){
                 SubscriptionLineItem lineItem = new SubscriptionLineItem();
                 lineItem.productId = qliRec.Product2.productcode;
+                lineItem.productFamilyId = System.Label.productFamilyId;
                 lineItem.quantity = qliRec.Quantity;
                 lineItem.percentDiscount = qliRec.Discount != null ? qliRec.Discount/100 : 0;
                 lineItem.unitPrice = qliRec.Original_Price__c ;
@@ -180,6 +181,7 @@ public class SalesTaxCalloutHandler {
     }
     Public class SubscriptionLineItem{
         Public String productId;
+        Public String productFamilyId;
         Public Decimal quantity;
         Public Decimal percentDiscount;
         Public Decimal unitPrice;
