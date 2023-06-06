@@ -3,7 +3,7 @@
     <actionCalls>
         <name>EmailInvoiceExternalCallout</name>
         <label>EmailInvoiceExternalCallout</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>878</locationY>
         <actionName>EmailInvoiceExternalCallout</actionName>
         <actionType>apex</actionType>
@@ -15,6 +15,12 @@
             <name>calloutType</name>
             <value>
                 <stringValue>EmailInvoice</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailOverride</name>
+            <value>
+                <elementReference>emailOverride.value</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -54,7 +60,7 @@
     <decisions>
         <name>API_Response</name>
         <label>API Response</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>998</locationY>
         <defaultConnector>
             <targetReference>EmailInvoiceResponse</targetReference>
@@ -79,7 +85,7 @@
     <decisions>
         <name>Have_Access_To_Email_Invoice</name>
         <label>Have Access To Email Invoice</label>
-        <locationX>336</locationX>
+        <locationX>732</locationX>
         <locationY>398</locationY>
         <defaultConnector>
             <targetReference>Email_Invoice_No_Access</targetReference>
@@ -133,7 +139,7 @@
     <recordLookups>
         <name>Get_Finance_User_Permission_Set</name>
         <label>Get Finance User Permission Set</label>
-        <locationX>336</locationX>
+        <locationX>732</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -156,7 +162,7 @@
     <recordLookups>
         <name>Get_Opportunity</name>
         <label>Get Opportunity</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>518</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -182,7 +188,7 @@
     <recordLookups>
         <name>Get_Permission_set</name>
         <label>Get Permission set</label>
-        <locationX>336</locationX>
+        <locationX>732</locationX>
         <locationY>278</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -212,7 +218,7 @@
         <description>Get Synced Quote</description>
         <name>Get_Quote</name>
         <label>Get Quote</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>638</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -247,6 +253,9 @@
         <connector>
             <targetReference>Update_Task_Review_the_PO</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Error_Handler</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -277,6 +286,9 @@
         <connector>
             <targetReference>EmailInvoiceResponse</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Copy_1_of_Error_Handler</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>WhatId</field>
@@ -301,9 +313,26 @@
         <object>Task</object>
     </recordUpdates>
     <screens>
+        <name>Copy_1_of_Error_Handler</name>
+        <label>Copy 1 of Error Handler</label>
+        <locationX>314</locationX>
+        <locationY>1358</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Copy_1_of_ErrorMessage</name>
+            <fieldText>&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Okay</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
         <name>Email_Invoice</name>
         <label>Email Invoice</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>758</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -339,7 +368,7 @@
             <isRequired>false</isRequired>
         </fields>
         <fields>
-            <name>Email</name>
+            <name>emailOverride</name>
             <extensionName>flowruntime:email</extensionName>
             <fieldType>ComponentInstance</fieldType>
             <inputParameters>
@@ -365,7 +394,7 @@
     <screens>
         <name>Email_Invoice_No_Access</name>
         <label>Email Invoice No Access</label>
-        <locationX>490</locationX>
+        <locationX>1018</locationX>
         <locationY>518</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -397,8 +426,8 @@
     <screens>
         <name>EmailInvoiceResponse</name>
         <label>EmailInvoiceResponse</label>
-        <locationX>182</locationX>
-        <locationY>1454</locationY>
+        <locationX>446</locationX>
+        <locationY>1718</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -426,8 +455,25 @@
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
+    <screens>
+        <name>Error_Handler</name>
+        <label>Error Handler</label>
+        <locationX>578</locationX>
+        <locationY>1238</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrorMessage</name>
+            <fieldText>&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Okay</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
     <start>
-        <locationX>210</locationX>
+        <locationX>606</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Finance_User_Permission_Set</targetReference>

@@ -5,7 +5,7 @@
         <name>check_if_License_Type_and_Count_exist</name>
         <label>check if License Type and Count exist</label>
         <locationX>578</locationX>
-        <locationY>648</locationY>
+        <locationY>1367</locationY>
         <defaultConnectorLabel>doesnt exist</defaultConnectorLabel>
         <rules>
             <name>if_exists</name>
@@ -31,10 +31,42 @@
         </rules>
     </decisions>
     <decisions>
+        <name>Copy_1_of_If_Bill_to_Account_c_Exist</name>
+        <label>Copy 1 of If Bill_to_Account__c Exist</label>
+        <locationX>1370</locationX>
+        <locationY>911</locationY>
+        <defaultConnector>
+            <targetReference>Copy_1_of_Update_Billing_Email_On_Account</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Copy_1_of_Yes_Bill_to_Account_c</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Opportunity.Bill_to_Account__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.IsSyncing</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Copy_1_of_Update_Billing_Email_On_Bill_To_Account</targetReference>
+            </connector>
+            <label>Copy 1 of Yes Bill_to_Account__c</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Execution</name>
         <label>Execution</label>
         <locationX>1370</locationX>
-        <locationY>288</locationY>
+        <locationY>335</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Created</name>
@@ -68,10 +100,85 @@
         </rules>
     </decisions>
     <decisions>
+        <name>If_Bill_to_Account_c_Exist</name>
+        <label>If Bill_to_Account__c Exist</label>
+        <locationX>578</locationX>
+        <locationY>1031</locationY>
+        <defaultConnector>
+            <targetReference>Update_Billing_Email_On_Account</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Bill_to_Account_c</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Opportunity.Bill_to_Account__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Billing_Email_On_Bill_To_Account</targetReference>
+            </connector>
+            <label>Yes Bill_to_Account__c</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Roundrobin_Needed_Create</name>
+        <label>If Roundrobin Needed (Create)</label>
+        <locationX>578</locationX>
+        <locationY>695</locationY>
+        <defaultConnector>
+            <targetReference>If_Bill_to_Account_c_Exist</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Needed_Create</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Opportunity.Account.LX_Owner__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Populate_License_Count_On_Synced_Quote_On_Account</targetReference>
+            </connector>
+            <label>Needed (Create)</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Roundrobin_Needed_Update</name>
+        <label>If Roundrobin Needed (Update)</label>
+        <locationX>1370</locationX>
+        <locationY>575</locationY>
+        <defaultConnector>
+            <targetReference>Copy_1_of_If_Bill_to_Account_c_Exist</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Needed_Update</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Opportunity.Account.LX_Owner__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Populate_License_Count_On_Synced_Quote_On_Account_LX_Roundrobin</targetReference>
+            </connector>
+            <label>Needed (Update)</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Quote_Update</name>
         <label>Quote Update</label>
         <locationX>1370</locationX>
-        <locationY>528</locationY>
+        <locationY>1247</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Waiting_on_PO</name>
@@ -115,7 +222,7 @@
         <name>Synced_Quote</name>
         <label>Synced Quote</label>
         <locationX>1634</locationX>
-        <locationY>408</locationY>
+        <locationY>455</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Yes</name>
@@ -128,7 +235,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Quote_Update</targetReference>
+                <targetReference>If_Roundrobin_Needed_Update</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
@@ -137,7 +244,7 @@
         <name>Which_License_Type</name>
         <label>Which License Type  ?</label>
         <locationX>314</locationX>
-        <locationY>768</locationY>
+        <locationY>1487</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Yearly</name>
@@ -178,6 +285,18 @@
         <expression>ISNEW()</expression>
     </formulas>
     <formulas>
+        <name>QLI_UnitPrice_Annual</name>
+        <dataType>Currency</dataType>
+        <expression>IF( ! ISNULL({!$Record.Opportunity.Renewal_Price__c}) , {!$Record.Opportunity.Renewal_Price__c},{!getAnnualPricebookEntries.UnitPrice})</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>QLI_UnitPrice_Monthly</name>
+        <dataType>Currency</dataType>
+        <expression>IF( ! ISNULL({!$Record.Opportunity.Renewal_Price__c}), {!$Record.Opportunity.Renewal_Price__c},{!getMonthlyPricebookEntries.UnitPrice})</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
         <name>QuoteName</name>
         <dataType>String</dataType>
         <expression>{!$Record.Opportunity.Account.Name} &amp; &apos; - Quote - &apos; &amp; {!$Record.QuoteNumber}</expression>
@@ -209,10 +328,10 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>Create_Quote_Line_Item</name>
-        <label>Create Quote Line Item</label>
+        <name>Create_Quote_Line_Item_For_Annual</name>
+        <label>Create Quote Line Item For Annual</label>
         <locationX>50</locationX>
-        <locationY>1008</locationY>
+        <locationY>1727</locationY>
         <inputAssignments>
             <field>End_Date__c</field>
             <value>
@@ -252,7 +371,7 @@
         <inputAssignments>
             <field>UnitPrice</field>
             <value>
-                <elementReference>getAnnualPricebookEntries.UnitPrice</elementReference>
+                <elementReference>QLI_UnitPrice_Annual</elementReference>
             </value>
         </inputAssignments>
         <object>QuoteLineItem</object>
@@ -262,7 +381,7 @@
         <name>Create_Quote_Line_Item_for_monthly</name>
         <label>Create Quote Line Item for monthly</label>
         <locationX>314</locationX>
-        <locationY>1008</locationY>
+        <locationY>1727</locationY>
         <inputAssignments>
             <field>End_Date__c</field>
             <value>
@@ -302,7 +421,7 @@
         <inputAssignments>
             <field>UnitPrice</field>
             <value>
-                <elementReference>getMonthlyPricebookEntries.UnitPrice</elementReference>
+                <elementReference>QLI_UnitPrice_Monthly</elementReference>
             </value>
         </inputAssignments>
         <object>QuoteLineItem</object>
@@ -312,10 +431,10 @@
         <name>getAnnualPricebookEntries</name>
         <label>getAnnualPricebookEntries</label>
         <locationX>50</locationX>
-        <locationY>888</locationY>
+        <locationY>1607</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Create_Quote_Line_Item</targetReference>
+            <targetReference>Create_Quote_Line_Item_For_Annual</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -340,7 +459,7 @@
         <name>getMonthlyPricebookEntries</name>
         <label>getMonthlyPricebookEntries</label>
         <locationX>314</locationX>
-        <locationY>888</locationY>
+        <locationY>1607</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Create_Quote_Line_Item_for_monthly</targetReference>
@@ -365,10 +484,146 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
+        <name>Copy_1_of_Update_Billing_Email_On_Account</name>
+        <label>Copy 1 of Update Billing Email On Account</label>
+        <locationX>1502</locationX>
+        <locationY>1031</locationY>
+        <connector>
+            <targetReference>Quote_Update</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity.AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Billing_Email__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Billing_Email__c</field>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Copy_1_of_Update_Billing_Email_On_Bill_To_Account</name>
+        <label>Copy 1 of Update Billing Email On Bill To Account</label>
+        <locationX>1238</locationX>
+        <locationY>1031</locationY>
+        <connector>
+            <targetReference>Quote_Update</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity.Bill_to_Account__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Billing_Email__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Billing_Email__c</field>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>To make account ready for LX Roundrobin</description>
+        <name>Populate_License_Count_On_Synced_Quote_On_Account</name>
+        <label>Populate &quot;License Count On Synced Quote&quot; On Account</label>
+        <locationX>446</locationX>
+        <locationY>815</locationY>
+        <connector>
+            <targetReference>If_Bill_to_Account_c_Exist</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity.AccountId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>LX_Owner_Assinment_Due_To_Quote_Id__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LX_Roundrobin_Based_On_Quote__c</field>
+            <value>
+                <stringValue>To Do</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>License_Count_On_Synced_Quote__c</field>
+            <value>
+                <elementReference>$Record.License_Count__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>To make account ready for LX Roundrobin</description>
+        <name>Populate_License_Count_On_Synced_Quote_On_Account_LX_Roundrobin</name>
+        <label>Populate &quot;License Count On Synced Quote&quot; On Account / LX Roundrobin</label>
+        <locationX>1238</locationX>
+        <locationY>695</locationY>
+        <connector>
+            <targetReference>Copy_1_of_If_Bill_to_Account_c_Exist</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity.AccountId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>LX_Owner_Assinment_Due_To_Quote_Id__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LX_Roundrobin_Based_On_Quote__c</field>
+            <value>
+                <stringValue>To Do</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>License_Count_On_Synced_Quote__c</field>
+            <value>
+                <elementReference>$Record.License_Count__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <recordUpdates>
         <name>Set_Quote_Name</name>
         <label>Set Quote Name</label>
         <locationX>578</locationX>
-        <locationY>408</locationY>
+        <locationY>455</locationY>
         <connector>
             <targetReference>Update_Opportunity_to_Sync_Quote</targetReference>
         </connector>
@@ -381,10 +636,72 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <recordUpdates>
+        <name>Update_Billing_Email_On_Account</name>
+        <label>Update Billing Email On Account</label>
+        <locationX>710</locationX>
+        <locationY>1151</locationY>
+        <connector>
+            <targetReference>check_if_License_Type_and_Count_exist</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity.AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Billing_Email__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Billing_Email__c</field>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Billing_Email_On_Bill_To_Account</name>
+        <label>Update Billing Email On Bill To Account</label>
+        <locationX>446</locationX>
+        <locationY>1151</locationY>
+        <connector>
+            <targetReference>check_if_License_Type_and_Count_exist</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity.Bill_to_Account__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Billing_Email__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Billing_Email__c</field>
+            <value>
+                <elementReference>$Record.Billing_Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <recordUpdates>
         <name>Update_Opp_Auto_Renew</name>
         <label>Update Opp Auto Renew</label>
         <locationX>1370</locationX>
-        <locationY>648</locationY>
+        <locationY>1367</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -405,7 +722,7 @@
         <name>Update_Opportunity_Stage</name>
         <label>Update Opportunity Stage</label>
         <locationX>1106</locationX>
-        <locationY>648</locationY>
+        <locationY>1367</locationY>
         <inputAssignments>
             <field>StageName</field>
             <value>
@@ -418,9 +735,9 @@
         <name>Update_Opportunity_to_Sync_Quote</name>
         <label>Update Opportunity to Sync Quote</label>
         <locationX>578</locationX>
-        <locationY>528</locationY>
+        <locationY>575</locationY>
         <connector>
-            <targetReference>check_if_License_Type_and_Count_exist</targetReference>
+            <targetReference>If_Roundrobin_Needed_Create</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -451,17 +768,14 @@
         <inputReference>$Record.Opportunity</inputReference>
     </recordUpdates>
     <start>
-        <locationX>1772</locationX>
+        <locationX>1244</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Execution</targetReference>
         </connector>
         <object>Quote</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
-        <scheduledPaths>
-            <pathType>AsyncAfterCommit</pathType>
-        </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>InvalidDraft</status>
+    <status>Active</status>
 </Flow>

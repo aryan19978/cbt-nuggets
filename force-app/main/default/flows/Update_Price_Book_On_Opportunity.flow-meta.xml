@@ -5,8 +5,8 @@
         <description>Assign Adept Id and Subscription Id from account on opportunity creation</description>
         <name>Assign_Adept_Id_and_Subscription_Id</name>
         <label>Assign Adept Id and Subscription Id</label>
-        <locationX>94</locationX>
-        <locationY>671</locationY>
+        <locationX>314</locationX>
+        <locationY>611</locationY>
         <assignmentItems>
             <assignToReference>$Record.Adept_Customer_Id__c</assignToReference>
             <operator>Assign</operator>
@@ -22,14 +22,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Set_Opportunity_Name</targetReference>
+            <targetReference>Check_License_Type</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Copy_1_of_Stamp_Price_Book</name>
         <label>Copy 1 of Stamp Price Book</label>
-        <locationX>380</locationX>
-        <locationY>1583</locationY>
+        <locationX>688</locationX>
+        <locationY>1727</locationY>
         <assignmentItems>
             <assignToReference>$Record.Pricebook2Id</assignToReference>
             <operator>Assign</operator>
@@ -44,22 +44,12 @@
                 <elementReference>$Record.Account.Term__c</elementReference>
             </value>
         </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.Tax_Exempt__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Account.Tax_Exempt__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Check_License_Type</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>RoundRobinAssignmnet</name>
         <label>RoundRobinAssignmnet</label>
-        <locationX>182</locationX>
-        <locationY>1127</locationY>
+        <locationX>490</locationX>
+        <locationY>1319</locationY>
         <assignmentItems>
             <assignToReference>$Record.RoundRobinAssignment__c</assignToReference>
             <operator>Assign</operator>
@@ -74,8 +64,8 @@
     <assignments>
         <name>Set_Opportunity_Close_Date</name>
         <label>Set Opportunity Close Date</label>
-        <locationX>94</locationX>
-        <locationY>551</locationY>
+        <locationX>314</locationX>
+        <locationY>503</locationY>
         <assignmentItems>
             <assignToReference>$Record.CloseDate</assignToReference>
             <operator>Assign</operator>
@@ -88,15 +78,36 @@
         </connector>
     </assignments>
     <assignments>
-        <name>Set_Opportunity_Name</name>
-        <label>Set Opportunity Name</label>
-        <locationX>314</locationX>
-        <locationY>887</locationY>
+        <name>Set_Opportunity_Name_Lead_Owner_Tax_Exempt_Reseller_Account</name>
+        <label>Set Opportunity Name/ Lead Owner/ Tax Exempt/ Reseller Account</label>
+        <locationX>622</locationX>
+        <locationY>1103</locationY>
         <assignmentItems>
             <assignToReference>$Record.Name</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>$Record.Account.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Lead_Owner__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Lead_Owner_Id_Text__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Tax_Exempt__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>TaxExemptValue</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Bill_to_Account__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Account.Reseller_Account__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -106,8 +117,8 @@
     <assignments>
         <name>Stamp_Price_Book</name>
         <label>Stamp Price Book</label>
-        <locationX>116</locationX>
-        <locationY>1463</locationY>
+        <locationX>424</locationX>
+        <locationY>1619</locationY>
         <assignmentItems>
             <assignToReference>$Record.Pricebook2Id</assignToReference>
             <operator>Assign</operator>
@@ -123,28 +134,18 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.Tax_Exempt__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Bill_to_Account__r.Tax_Exempt__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
             <assignToReference>$Record.Reseller__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
         </assignmentItems>
-        <connector>
-            <targetReference>Check_License_Type</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>Update_End_Date_for_Yearly</name>
         <label>Update End Date for Yearly</label>
         <locationX>50</locationX>
-        <locationY>2015</locationY>
+        <locationY>827</locationY>
         <assignmentItems>
             <assignToReference>$Record.End_Date__c</assignToReference>
             <operator>Assign</operator>
@@ -152,12 +153,15 @@
                 <elementReference>EndDateAnnual</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Set_Opportunity_Name_Lead_Owner_Tax_Exempt_Reseller_Account</targetReference>
+        </connector>
     </assignments>
     <assignments>
         <name>Update_End_Date_Monthly</name>
         <label>Update End Date Monthly</label>
         <locationX>314</locationX>
-        <locationY>2015</locationY>
+        <locationY>827</locationY>
         <assignmentItems>
             <assignToReference>$Record.End_Date__c</assignToReference>
             <operator>Assign</operator>
@@ -165,6 +169,9 @@
                 <elementReference>EndDateMonthly</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Set_Opportunity_Name_Lead_Owner_Tax_Exempt_Reseller_Account</targetReference>
+        </connector>
     </assignments>
     <constants>
         <name>AccountResellerDeveloperName</name>
@@ -176,8 +183,8 @@
     <decisions>
         <name>Check_Account</name>
         <label>Check Account</label>
-        <locationX>314</locationX>
-        <locationY>1343</locationY>
+        <locationX>622</locationX>
+        <locationY>1511</locationY>
         <defaultConnector>
             <targetReference>Check_Standard_Account</targetReference>
         </defaultConnector>
@@ -216,7 +223,10 @@
         <name>Check_License_Type</name>
         <label>Check License Type</label>
         <locationX>314</locationX>
-        <locationY>1895</locationY>
+        <locationY>719</locationY>
+        <defaultConnector>
+            <targetReference>Set_Opportunity_Name_Lead_Owner_Tax_Exempt_Reseller_Account</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Yearly</name>
@@ -252,11 +262,8 @@
     <decisions>
         <name>Check_Standard_Account</name>
         <label>Check Standard Account</label>
-        <locationX>512</locationX>
-        <locationY>1463</locationY>
-        <defaultConnector>
-            <targetReference>Check_License_Type</targetReference>
-        </defaultConnector>
+        <locationX>820</locationX>
+        <locationY>1619</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Is_Account_Present</name>
@@ -284,10 +291,10 @@
     <decisions>
         <name>Execution</name>
         <label>Execution</label>
-        <locationX>314</locationX>
-        <locationY>311</locationY>
+        <locationX>622</locationX>
+        <locationY>287</locationY>
         <defaultConnector>
-            <targetReference>Set_Opportunity_Name</targetReference>
+            <targetReference>Set_Opportunity_Name_Lead_Owner_Tax_Exempt_Reseller_Account</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -316,7 +323,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Set_Opportunity_Name</targetReference>
+                <targetReference>Set_Opportunity_Name_Lead_Owner_Tax_Exempt_Reseller_Account</targetReference>
             </connector>
             <label>Updated</label>
         </rules>
@@ -324,8 +331,8 @@
     <decisions>
         <name>If_Quoted</name>
         <label>If Quoted</label>
-        <locationX>314</locationX>
-        <locationY>1007</locationY>
+        <locationX>622</locationX>
+        <locationY>1211</locationY>
         <defaultConnector>
             <targetReference>Check_Account</targetReference>
         </defaultConnector>
@@ -382,6 +389,11 @@
         <dataType>Boolean</dataType>
         <expression>ISNEW()</expression>
     </formulas>
+    <formulas>
+        <name>TaxExemptValue</name>
+        <dataType>Boolean</dataType>
+        <expression>IF( ISBLANK( {!$Record.Bill_to_Account__c})   , {!$Record.Account.Tax_Exempt__c}, {!$Record.Bill_to_Account__r.Tax_Exempt__c})</expression>
+    </formulas>
     <interviewLabel>Update Price Book On Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Update Price Book On Opportunity</label>
     <processMetadataValues>
@@ -406,8 +418,8 @@
     <recordLookups>
         <name>Get_Default_Value_Custom_Metadata</name>
         <label>Get Default Value Custom Metadata</label>
-        <locationX>94</locationX>
-        <locationY>431</locationY>
+        <locationX>314</locationX>
+        <locationY>395</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Set_Opportunity_Close_Date</targetReference>
@@ -434,7 +446,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <start>
-        <locationX>188</locationX>
+        <locationX>496</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Execution</targetReference>

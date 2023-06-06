@@ -23,7 +23,7 @@
         <locationX>182</locationX>
         <locationY>158</locationY>
         <defaultConnector>
-            <targetReference>find_lead</targetReference>
+            <targetReference>create_case_from_lead</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>no</defaultConnectorLabel>
         <rules>
@@ -82,6 +82,12 @@ contact id: {!contact_id}</interviewLabel>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Browser__c</field>
+            <value>
+                <elementReference>browser</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>ContactId</field>
             <value>
                 <elementReference>contact_id</elementReference>
@@ -91,6 +97,24 @@ contact id: {!contact_id}</interviewLabel>
             <field>Description</field>
             <value>
                 <elementReference>message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Flash_Installed__c</field>
+            <value>
+                <elementReference>flash</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Media_Player__c</field>
+            <value>
+                <elementReference>media_player</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Operating_System__c</field>
+            <value>
+                <elementReference>os</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -124,17 +148,41 @@ contact id: {!contact_id}</interviewLabel>
         <name>create_case_from_lead</name>
         <label>create case from lead</label>
         <locationX>314</locationX>
-        <locationY>398</locationY>
+        <locationY>278</locationY>
         <inputAssignments>
-            <field>AccountId</field>
+            <field>Browser__c</field>
             <value>
-                <elementReference>find_lead.ConvertedAccountId</elementReference>
+                <elementReference>browser</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Description</field>
             <value>
                 <elementReference>message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Flash_Installed__c</field>
+            <value>
+                <elementReference>flash</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Lead__c</field>
+            <value>
+                <elementReference>lead_id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Media_Player__c</field>
+            <value>
+                <elementReference>media_player</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Operating_System__c</field>
+            <value>
+                <elementReference>os</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -161,30 +209,6 @@ contact id: {!contact_id}</interviewLabel>
                 <elementReference>subject</elementReference>
             </value>
         </inputAssignments>
-        <inputAssignments>
-            <field>SuppliedCompany</field>
-            <value>
-                <elementReference>find_lead.Company</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>SuppliedEmail</field>
-            <value>
-                <elementReference>find_lead.Email</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>SuppliedName</field>
-            <value>
-                <elementReference>find_lead.Name</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>SuppliedPhone</field>
-            <value>
-                <elementReference>find_lead.Phone</elementReference>
-            </value>
-        </inputAssignments>
         <object>Case</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
@@ -209,27 +233,6 @@ contact id: {!contact_id}</interviewLabel>
         <object>Contact</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordLookups>
-        <name>find_lead</name>
-        <label>find lead</label>
-        <locationX>314</locationX>
-        <locationY>278</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>create_case_from_lead</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>lead_id</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Lead</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
     <start>
         <locationX>56</locationX>
         <locationY>0</locationY>
@@ -237,7 +240,7 @@ contact id: {!contact_id}</interviewLabel>
             <targetReference>is_contact_available</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>account_id</name>
         <dataType>String</dataType>
@@ -246,7 +249,21 @@ contact id: {!contact_id}</interviewLabel>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>browser</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>contact_id</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>flash</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
@@ -260,7 +277,21 @@ contact id: {!contact_id}</interviewLabel>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>media_player</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>os</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>

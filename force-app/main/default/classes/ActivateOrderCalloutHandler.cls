@@ -18,7 +18,7 @@ public class ActivateOrderCalloutHandler {
         ActivateOrderWrapper activateOrder = new ActivateOrderWrapper();        
         activateOrder.apiKey = HttpCalloutUtility.getValueCustomMetadata('apiKey');
         activateOrder.adeptCustomerId = inputData.get('adeptCustomerId');
-        String jsonStr = JSON.serialize(activateOrder);
+        String jsonStr = JSON.serialize(activateOrder,true);
         system.debug('Activate Order request' + jsonStr);
         return jsonStr;
     }

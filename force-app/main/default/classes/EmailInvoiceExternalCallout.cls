@@ -5,6 +5,7 @@ global class EmailInvoiceExternalCallout
         @InvocableVariable public String invoiceId;
         @InvocableVariable public String purchaseOrder;
         @InvocableVariable public String invoiceMessage;
+        @InvocableVariable public String emailOverride;
         @InvocableVariable public String calloutType;
     }
     public class OutputVariables{ 
@@ -19,6 +20,7 @@ global class EmailInvoiceExternalCallout
         inputData.put('invoiceId', params[0].invoiceId);
         inputData.put('purchaseOrder', params[0].purchaseOrder);
         inputData.put('invoiceMessage', params[0].invoiceMessage);
+        inputData.put('emailOverride', params[0].emailOverride);
         inputData.put('calloutType', params[0].calloutType);
         
         Map<String, String> responseMap = EmailInvoiceCalloutHandler.handleHttpCallout(inputData);

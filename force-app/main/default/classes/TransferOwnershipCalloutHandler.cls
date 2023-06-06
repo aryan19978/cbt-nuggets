@@ -14,17 +14,18 @@ public class TransferOwnershipCalloutHandler {
             TransferOwnershipResponseWrapper jsonStrToWrapper=  (TransferOwnershipResponseWrapper) System.JSON.deserialize(res.getBody(), TransferOwnershipResponseWrapper.class);
             system.debug('jsonStrToWrapper ' + jsonStrToWrapper);
             TransferOwnershipResponseWrapper response = (TransferOwnershipResponseWrapper)jsonStrToWrapper; 
-            system.debug('response '+ response);
+            system.debug('TransferOwnership Response '+ response);
             
-            if(response.success== Null){
-                responseMap.put('result',res.getBody());
-                responseMap.put('responseType', 'warning');                 
-                return responseMap;
-            }
-            else{
+            if(response.success == true){
                 responseMap.put('result','Transfer Owner Successful.');
                 responseMap.put('responseType', 'success');
                 responseMap.put('success', String.valueof(response.success));
+                
+            }
+            else{
+                responseMap.put('result',res.getBody());
+                responseMap.put('responseType', 'warning');                 
+                return responseMap;
             }
         }
         Catch(Exception ex){

@@ -1,104 +1,65 @@
 <apex:page showHeader="false">
-<html>
-    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-    <head>
-        <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-WDQ6JQ9');</script>
-        <!-- End Google Tag Manager -->
-        <title>
-            CBT Nuggets Live Chat Missed Chat
-        </title>
-        <apex:stylesheet value="{!$Resource.CBTN_Live_Chat_CSS}"/>
-    </head>
-    <liveAgent:clientchat >
-        <body>
-            <!-- Google Tag Manager (noscript) -->
-            <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WDQ6JQ9"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-            <!-- End Google Tag Manager (noscript) -->
-            <div id="chatContainer">
-                <header>
-                    <apex:image value="{!$Resource.CBTN_Live_Chat_Logo}"/>
-                </header>
-                <div class="chatcard">
-                    <div id="chatAlert"><liveAgent:clientChatAlertMessage /></div>
-                    <div id="chatStatus"><liveAgent:clientChatStatusMessage /></div>
-                    <div id="waitingMessage">
-                        A team member will be with you soon! Thank you for your patience.
-                        <br/>
-                       <apex:image value="{!$Resource.CBTN_Live_Chat_Loading_Bubbles}"/>
-                    </div>
-                    <div class="chatlog">
-                        <div id="chattingWith">
-                            You are now chatting with <span id="agentName"></span>.
-                        </div>
-                        <liveAgent:clientChatLog />
-                    </div>
-                    <hr/>
-                    <div class="chatinput">
-                        <liveagent:clientChatInput useMultiLine="true" />
-                    </div>
-                    <div class="btn-container">
-                <!--        <liveAgent:clientChatSaveButton label="Save" /> -->
-                        <liveAgent:clientChatEndButton label="End Chat" />
-                        <liveAgent:clientChatSendButton label="Send" />
-                    </div>
-                </div>
-            </div>
-        </body>
-        <script type='text/javascript'>
-    
-            //console.log(liveagent.chasitor.Events);   
-            document.getElementById("liveAgentChatTextArea").focus();
-            //liveagent.addEventListener(liveagent.chasitor.Events.CHAT_REQUEST_SUCCESSFUL, myCallBack);
-            liveagent.addEventListener(liveagent.chasitor.Events.CHAT_ESTABLISHED, newagent);
-            liveagent.addEventListener(liveagent.chasitor.Events.AGENT_CHAT_TRANSFERRED, transferagent);
-            liveagent.addEventListener(liveagent.chasitor.Events.AGENT_JOINED_CONFERENCE, addagent);
-            liveagent.addEventListener(liveagent.chasitor.Events.AGENT_LEFT_CONFERENCE, removeagent);
-    
-            function newagent() {
-              var details = liveagent.chasitor.getDetails();
-              document.getElementById("agentName").innerText = details.agent.agentName;
-              document.getElementById("chattingWith").style.display = "block";
-              document.getElementById("waitingMessage").style.display = "none";
-            }
-            
-            function transferagent() {
-              var details = liveagent.chasitor.getDetails();
-              document.getElementById("agentName").innerText = details.agent.agentName;
-            }
-            
-            function addagent(agentname) {
-              // Hide loading graphic in case this callback conflicts with chat start
-              document.getElementById("waitingMessage").style.display = "none";
-              var agents = document.getElementById("agentName");
-              var newstring = agents.innerText + " & " + agentname;
-              agents.innerText = newstring;
-            }
-            
-            function removeagent(agentname) {
-              var agents = document.getElementById("agentName");
-              // Ugly string replacement due to having to deal only with string values of names
-              var newstring = agents.innerText.trim();
-              newstring = newstring.replace(agentname, "");
-              newstring  = newstring.trim();
-              newstring = newstring.replace("& &", "");
-              newstring  = newstring.trim();
-              if(newstring.substring(newstring.length - 1,newstring.length) == "&"){
-                  newstring = newstring.substring(0, (newstring.length - 1));
-                  newstring  = newstring.trim();
-              } 
-              if(newstring.substring(0,1) == "&"){
-                  newstring = newstring.substring(1);
-                  newstring  = newstring.trim();
-              } 
-              agents.innerText = newstring;
-            }
-        </script>
-    </liveAgent:clientchat>
-</html>
+<style type='text/css'>
+	.embeddedServiceHelpButton .helpButton .uiButton {
+		background-color: #005290;
+		font-family: "Arial", sans-serif;
+	}
+	.embeddedServiceHelpButton .helpButton .uiButton:focus {
+		outline: 1px solid #005290;
+	}
+</style>
+
+<script type='text/javascript' src='https://service.force.com/embeddedservice/5.0/esw.min.js'></script>
+<script type='text/javascript'>
+	var initESW = function(gslbBaseURL) {
+		embedded_svc.settings.displayHelpButton = true; //Or false
+		embedded_svc.settings.language = ''; //For example, enter 'en' or 'en-US'
+
+		//embedded_svc.settings.defaultMinimizedText = '...'; //(Defaults to Chat with an Expert)
+		//embedded_svc.settings.disabledMinimizedText = '...'; //(Defaults to Agent Offline)
+
+		//embedded_svc.settings.loadingText = ''; //(Defaults to Loading)
+		//embedded_svc.settings.storageDomain = 'yourdomain.com'; //(Sets the domain for your deployment so that visitors can navigate subdomains during a chat session)
+
+		// Settings for Chat
+		//embedded_svc.settings.directToButtonRouting = function(prechatFormData) {
+			// Dynamically changes the button ID based on what the visitor enters in the pre-chat form.
+			// Returns a valid button ID.
+		//};
+		//embedded_svc.settings.prepopulatedPrechatFields = {}; //Sets the auto-population of pre-chat form fields
+		//embedded_svc.settings.fallbackRouting = []; //An array of button IDs, user IDs, or userId_buttonId
+		//embedded_svc.settings.offlineSupportMinimizedText = '...'; //(Defaults to Contact Us)
+
+		embedded_svc.settings.enabledFeatures = ['LiveAgent'];
+		embedded_svc.settings.entryFeature = 'LiveAgent';
+
+		embedded_svc.init(
+			'https://cbtnuggets2--partial.sandbox.my.salesforce.com',
+			'https://cbtnuggets2--partial.sandbox.my.salesforce-sites.com/livechat',
+			gslbBaseURL,
+			'00D750000008g7b',
+			'Case_Support_Chat_Agents',
+			{
+				baseLiveAgentContentURL: 'https://c.la5-c1cs-ia5.salesforceliveagent.com/content',
+				deploymentId: '57275000000Kyjp',
+				buttonId: '57375000000KymK',
+				baseLiveAgentURL: 'https://d.la5-c1cs-ia5.salesforceliveagent.com/chat',
+				eswLiveAgentDevName: 'Case_Support_Chat_Agents',
+				isOfflineSupportEnabled: true
+			}
+		);
+	};
+
+	if (!window.embedded_svc) {
+		var s = document.createElement('script');
+		s.setAttribute('src', 'https://cbtnuggets2--partial.sandbox.my.salesforce.com/embeddedservice/5.0/esw.min.js');
+		s.onload = function() {
+			initESW(null);
+		};
+		document.body.appendChild(s);
+	} else {
+		initESW('https://service.force.com');
+	}
+</script>
+  
 </apex:page>

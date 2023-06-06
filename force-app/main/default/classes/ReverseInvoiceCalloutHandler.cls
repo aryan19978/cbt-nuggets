@@ -16,13 +16,18 @@ public class ReverseInvoiceCalloutHandler {
             ReverseResponseWrapper response = (ReverseResponseWrapper)jsonStrToWrapper; 
             system.debug('response '+ response);
             
-            if(response.invoiceId== Null){
+            if(response.invoiceId== Null || response.success == false){
                 responseMap.put('result',res.getBody());
                 responseMap.put('responseType', 'warning');                 
                 return responseMap;
             }
             else{
-                responseMap.put('result','Reverse Successful.');
+                if(response.success == true){
+                    responseMap.put('result','Reverse Successful.');
+                }
+                else{
+                    responseMap.put('result', res.getBody()); 
+                }
                 responseMap.put('responseType', 'success');
                 responseMap.put('invoiceId', response.invoiceId);
                 responseMap.put('success', String.valueof(response.success));
@@ -30,8 +35,9 @@ public class ReverseInvoiceCalloutHandler {
             }
         }
         Catch(Exception ex){
-            	responseMap.put('result',ex.getCause() + ex.getMessage() + ex.getTypeName() + '\n ******** Response*******'+ res.getBody() );
-                responseMap.put('responseType', 'warning');
+            responseMap.put('result', res.getBody() );
+            System.debug(ex.getCause() + ex.getMessage() + ex.getTypeName());    
+            responseMap.put('responseType', 'warning');
         }
         return responseMap;
     }
@@ -42,18 +48,7 @@ public class ReverseInvoiceCalloutHandler {
         String requestBodyStr = JSON.serializePretty(data);
         return requestBodyStr;
     }
-    
-    // method to return Invoice for Account
-    /*Public Static List<sandbox_cbt_invoices__x> getInvoiceList(String  accId){
-        List<sandbox_cbt_invoices__x> invoiceList = [SELECT Id, ExternalId, DisplayUrl, subTotal__c,
-                                                     customerid__r.id, total__c, invoiceid__c,
-                                                     totalTax__c FROM sandbox_cbt_invoices__x 
-                                                     where customerid__r.id =: accId
-                                                    ORDER BY startDate__c Desc];
-        return invoiceList;
-    }*/
-    
-    
+
 	// Request Wrapper Class
     Public class ReverseRequestWrapper{
         Public String invoiceId;

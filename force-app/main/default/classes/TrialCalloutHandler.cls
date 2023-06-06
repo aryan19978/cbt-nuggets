@@ -15,47 +15,40 @@ public class TrialCalloutHandler {
     }
     
     public static String createInputRequest(Map<String, String> inputData){
-
             TrialPurchaseDetails purchaseDetail = new TrialPurchaseDetails();
             purchaseDetail.startDate = inputData.get('startDate');
             purchaseDetail.quantity = integer.valueof(inputData.get('licenseCount'));
-            // purchaseDetail.newEndDate = integer.valueof(inputData.get('licenseCount')); // string
-            // purchaseDetail.durationOverride = integer.valueof(inputData.get('licenseCount')); //integer
+            purchaseDetail.durationOverride = integer.valueof(inputData.get('durationOverride')); 
 
             TrialCustomerDetails customerDetail = new TrialCustomerDetails(); 
             customerDetail.salesforceCustomerId = inputData.get('accountId');
-            //customerDetail.salesforceContactId = '';
             customerDetail.firstName = inputData.get('firstName');
             customerDetail.lastName = inputData.get('lastName');
             customerDetail.email = inputData.get('email');
             customerDetail.company = inputData.get('accountName');
-            // customerDetail.salesforceCustomerId = inputData.get('accountName'); // string
-            // customerDetail.adeptCustomerId = inputData.get('accountName');  // string
 
             TrialWrapper trialdata = new TrialWrapper();
             trialdata.purchaseDetails = purchaseDetail;
             trialdata.customerDetails = customerDetail;
-        	system.debug(JSON.serializePretty(trialdata));
-            String jsonStr = JSON.serialize(trialdata);
+            String jsonStr = JSON.serialize(trialdata,true);
+        	system.debug('Trial Request '+jsonStr);
             return jsonStr;
     }
     
     // create json for trial endpoint
     Public class TrialWrapper{
-        // Public String apiKey;
-        // Public String env;
         Public TrialPurchaseDetails purchaseDetails;
         Public TrialCustomerDetails customerDetails;
     }
     
     Public class TrialPurchaseDetails{ 
         Public String startDate;
+        Public Integer durationOverride;
         Public Integer quantity;
     }
     
     Public class TrialCustomerDetails{ 
         Public String salesforceCustomerId;
-        //Public String salesforceContactId;
         Public String firstName;
         Public String lastName;
         Public String email;

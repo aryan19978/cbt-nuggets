@@ -4,7 +4,7 @@
     <assignments>
         <name>Lead_Field_Value_Assignment</name>
         <label>Lead Field Value Assignment</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>311</locationY>
         <assignmentItems>
             <assignToReference>$Record.Email_Domain__c</assignToReference>
@@ -13,7 +13,59 @@
                 <elementReference>EmailDomainValue</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Check_If_Need_Lead_Owner_Id_Assignment</targetReference>
+        </connector>
     </assignments>
+    <assignments>
+        <name>Lead_Owner_Id_Text_Field_Value_Assignment</name>
+        <label>Lead Owner Id Text Field Value Assignment</label>
+        <locationX>50</locationX>
+        <locationY>551</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Lead_Owner_Id_Text__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Check_If_Need_Lead_Owner_Id_Assignment</name>
+        <label>Check If Need Lead Owner Id Assignment</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Lead_Owner_Id_Text__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Lead_Owner_Id_Text__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Lead_Owner_Id_Text__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.OwnerId</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Lead_Owner_Id_Text_Field_Value_Assignment</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
     <environments>Default</environments>
     <formulas>
         <name>EmailDomainValue</name>
@@ -42,7 +94,7 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>50</locationX>
+        <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Lead_Field_Value_Assignment</targetReference>

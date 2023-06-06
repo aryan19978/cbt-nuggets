@@ -3,7 +3,7 @@
     <actionCalls>
         <name>ReverseInvoiceExternalCallout</name>
         <label>ReverseInvoiceExternalCallout</label>
-        <locationX>182</locationX>
+        <locationX>314</locationX>
         <locationY>1214</locationY>
         <actionName>ReverseInvoiceExternalCallout</actionName>
         <actionType>apex</actionType>
@@ -48,7 +48,7 @@
     <decisions>
         <name>Check_Object</name>
         <label>Check Object</label>
-        <locationX>182</locationX>
+        <locationX>314</locationX>
         <locationY>758</locationY>
         <defaultConnector>
             <targetReference>Get_Invoice</targetReference>
@@ -73,7 +73,7 @@
     <decisions>
         <name>Have_Access_To_Reverse</name>
         <label>Have Access To Reverse</label>
-        <locationX>380</locationX>
+        <locationX>578</locationX>
         <locationY>518</locationY>
         <defaultConnector>
             <targetReference>Reverse_No_Access</targetReference>
@@ -105,10 +105,10 @@
     <decisions>
         <name>Reversed</name>
         <label>Reversed</label>
-        <locationX>182</locationX>
+        <locationX>314</locationX>
         <locationY>1334</locationY>
         <defaultConnector>
-            <targetReference>Reverse_Response</targetReference>
+            <targetReference>Copy_1_of_Reverse_Response</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -172,6 +172,9 @@
         <connector>
             <targetReference>Reverse_Response</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>ErrorHandleScreen</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>Description</field>
             <value>
@@ -208,7 +211,7 @@
     <recordLookups>
         <name>Check_Permission_set</name>
         <label>Check Permission set</label>
-        <locationX>380</locationX>
+        <locationX>578</locationX>
         <locationY>398</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -244,7 +247,7 @@
     <recordLookups>
         <name>Get_Finance_User_Permission_Set</name>
         <label>Get Finance User Permission Set</label>
-        <locationX>380</locationX>
+        <locationX>578</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -267,7 +270,7 @@
     <recordLookups>
         <name>Get_Invoice</name>
         <label>Get Invoice</label>
-        <locationX>314</locationX>
+        <locationX>446</locationX>
         <locationY>878</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -290,7 +293,7 @@
     <recordLookups>
         <name>Get_Learner_Support_User_Permission_Set</name>
         <label>Get Learner Support User Permission Set</label>
-        <locationX>380</locationX>
+        <locationX>578</locationX>
         <locationY>278</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -313,7 +316,7 @@
     <recordLookups>
         <name>Get_Opportunity_Record</name>
         <label>Get Opportunity Record</label>
-        <locationX>50</locationX>
+        <locationX>182</locationX>
         <locationY>878</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -336,7 +339,7 @@
     <recordLookups>
         <name>GetEntity</name>
         <label>GetEntity</label>
-        <locationX>182</locationX>
+        <locationX>314</locationX>
         <locationY>638</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -355,9 +358,154 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <screens>
+        <name>Copy_1_of_Reverse_Response</name>
+        <label>Copy 1 of Reverse Response</label>
+        <locationX>578</locationX>
+        <locationY>1454</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Copy_1_of_Reverse_Response_Section1</name>
+            <fieldType>RegionContainer</fieldType>
+            <fields>
+                <name>Copy_1_of_Reverse_Response_Section1_Column1</name>
+                <fieldType>Region</fieldType>
+                <fields>
+                    <name>Copy_1_of_ReverseResponse</name>
+                    <extensionName>c:lwc_NotifyMessage</extensionName>
+                    <fieldType>ComponentInstance</fieldType>
+                    <inputParameters>
+                        <name>message</name>
+                        <value>
+                            <elementReference>res_Result</elementReference>
+                        </value>
+                    </inputParameters>
+                    <inputParameters>
+                        <name>type</name>
+                        <value>
+                            <elementReference>res_responseType</elementReference>
+                        </value>
+                    </inputParameters>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
+                    <storeOutputAutomatically>true</storeOutputAutomatically>
+                </fields>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>12</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <isRequired>false</isRequired>
+            <regionContainerType>SectionWithoutHeader</regionContainerType>
+        </fields>
+        <fields>
+            <name>Copy_1_of_Reverse_Response_Section2</name>
+            <fieldType>RegionContainer</fieldType>
+            <fields>
+                <name>Copy_1_of_Reverse_Response_Section2_Column1</name>
+                <fieldType>Region</fieldType>
+                <fields>
+                    <name>Copy_1_of_invoiceIdText</name>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Res_InvoiceId</elementReference>
+                    </defaultValue>
+                    <fieldText>Invoice Id</fieldText>
+                    <fieldType>InputField</fieldType>
+                    <isRequired>false</isRequired>
+                </fields>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>4</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <fields>
+                <name>Copy_1_of_Reverse_Response_Section2_Column2</name>
+                <fieldType>Region</fieldType>
+                <fields>
+                    <name>Copy_1_of_Success</name>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>res_Success</elementReference>
+                    </defaultValue>
+                    <fieldText>Success</fieldText>
+                    <fieldType>InputField</fieldType>
+                    <isRequired>false</isRequired>
+                </fields>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>4</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <fields>
+                <name>Copy_1_of_Reverse_Response_Section2_Column3</name>
+                <fieldType>Region</fieldType>
+                <fields>
+                    <name>Copy_1_of_Reversal_Invoice_Id</name>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>res_ReversalInvoiceId</elementReference>
+                    </defaultValue>
+                    <fieldText>Reversal Invoice Id</fieldText>
+                    <fieldType>InputField</fieldType>
+                    <isRequired>false</isRequired>
+                </fields>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>4</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <isRequired>false</isRequired>
+            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>Res_InvoiceId</leftValueReference>
+                    <operator>IsNull</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <nextOrFinishButtonLabel>Done</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>ErrorHandleScreen</name>
+        <label>ErrorHandleScreen</label>
+        <locationX>314</locationX>
+        <locationY>1574</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrorMessage</name>
+            <fieldText>&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Okay</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
         <name>Reverse</name>
         <label>Reverse</label>
-        <locationX>182</locationX>
+        <locationX>314</locationX>
         <locationY>1094</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -421,7 +569,7 @@
     <screens>
         <name>Reverse_No_Access</name>
         <label>Reverse No Access</label>
-        <locationX>578</locationX>
+        <locationX>842</locationX>
         <locationY>638</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -453,8 +601,8 @@
     <screens>
         <name>Reverse_Response</name>
         <label>Reverse Response</label>
-        <locationX>182</locationX>
-        <locationY>1670</locationY>
+        <locationX>50</locationX>
+        <locationY>1574</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -579,13 +727,13 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>254</locationX>
+        <locationX>452</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Finance_User_Permission_Set</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>

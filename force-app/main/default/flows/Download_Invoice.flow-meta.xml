@@ -4,7 +4,7 @@
         <name>GetInvoicePDFExternalCallout</name>
         <label>GetInvoicePDFExternalCallout</label>
         <locationX>176</locationX>
-        <locationY>278</locationY>
+        <locationY>398</locationY>
         <actionName>GetInvoicePDFCallout</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -68,11 +68,34 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
+    <recordLookups>
+        <name>Get_Opportunity</name>
+        <label>Get Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>DownloadInvoice</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Invoice_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <screens>
         <name>DownloadInvoice</name>
         <label>DownloadInvoice</label>
         <locationX>176</locationX>
-        <locationY>158</locationY>
+        <locationY>278</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -99,6 +122,9 @@
                 <fields>
                     <name>Invoice_Id</name>
                     <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Opportunity.Invoice_Id__c</elementReference>
+                    </defaultValue>
                     <fieldText>Invoice Id</fieldText>
                     <fieldType>InputField</fieldType>
                     <isRequired>true</isRequired>
@@ -133,7 +159,7 @@
         <name>DownloadInvoice_Response</name>
         <label>DownloadInvoice Response</label>
         <locationX>176</locationX>
-        <locationY>398</locationY>
+        <locationY>518</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -214,7 +240,7 @@
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>DownloadInvoice</targetReference>
+            <targetReference>Get_Opportunity</targetReference>
         </connector>
     </start>
     <status>Active</status>

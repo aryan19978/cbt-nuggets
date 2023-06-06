@@ -1,0 +1,9 @@
+<apex:page >
+ <a id="liveagent_button_online_57375000000Kyk9" href="javascript://Chat" style="display: none;" onclick="liveagent.startChat('57375000000Kyk9')"><!-- Online Chat Content --></a><div id="liveagent_button_offline_57375000000Kyk9" style="display: none;"><!-- Offline Chat Content --></div><script type="text/javascript">
+if (!window._laq) { window._laq = []; }
+window._laq.push(function(){liveagent.showWhenOnline('57375000000Kyk9', document.getElementById('liveagent_button_online_57375000000Kyk9'));
+liveagent.showWhenOffline('57375000000Kyk9', document.getElementById('liveagent_button_offline_57375000000Kyk9'));
+});</script>
+
+    
+</apex:page>

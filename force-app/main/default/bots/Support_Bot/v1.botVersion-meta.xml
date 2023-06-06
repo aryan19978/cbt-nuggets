@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v1</fullName>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Connected to the Support Team</message>
+                <messageIdentifier>0a8f846e-2bdf-ac01-bf9b-790806cd1dae</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>32cd0315-9723-40c9-9a89-157c503dd341</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>694aa2fc-4ab8-4865-8ff3-fd8de3da98bf</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Welcome</developerName>
+        <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>dd1c0fa9-0fde-4965-bf34-565d366c5c56</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Transfer_To_Agent</developerName>
+        <label>Transfer To Agent</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Unfortunately, there are no team members available at the moment. We have saved your information, and will contact you at the email address you provided.</message>
+                <messageIdentifier>73d887a4-0612-415e-b1af-176ae4d0d2c6</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>93ded839-eaf3-4e59-86c6-bd6ab5d01b68</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <botNavigation>
+                <botNavigationLinks>
+                    <targetBotDialog>End_Chat</targetBotDialog>
+                </botNavigationLinks>
+                <type>Redirect</type>
+            </botNavigation>
+            <stepIdentifier>a1cb0345-0461-474b-bf93-63f668a40eb2</stepIdentifier>
+            <type>Navigation</type>
+        </botSteps>
+        <developerName>No_Agent_Available</developerName>
+        <label>No Agent</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Thanks for taking the time to chat. To close the conversation, select End Chat.</message>
+                <messageIdentifier>78dedf22-4ec9-47ba-973c-e40dcbfe1c9a</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>bfd58cb3-da45-443e-a978-e1e86edf21f2</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>48aebfe0-04b6-4af2-ae3a-e9f6cd99ba3a</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>End_Chat</developerName>
+        <label>End Chat</label>
+        <showInFooterMenu>true</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Sorry, I didn&apos;t understand that.</message>
+                <messageIdentifier>489ddc0b-7edf-4184-9beb-c0daa7320c35</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>7fac7529-c9a9-463e-a512-e5b755baea87</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>6db54f73-1409-4f97-8065-2647b8338d6f</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Confused</developerName>
+        <label>Confused</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Unfortunately, a system error occurred. I&apos;ll connect you to an agent who can help.</message>
+                <messageIdentifier>16a428f2-7173-45bd-8d69-bc09ed45c214</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>af077759-2a94-4fc0-a602-81ea7c715b83</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>e07227c4-96ec-4ee2-88e1-d92e79bdd91c</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Error_Handling</developerName>
+        <label>Error Handler</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <stepIdentifier>c653c09d-eee1-4bb6-81a5-43625ae19351</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Main_Menu</developerName>
+        <label>Main Menu</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <conversationSystemDialogs>
+        <dialog>Error_Handling</dialog>
+        <type>ErrorHandling</type>
+    </conversationSystemDialogs>
+    <conversationSystemDialogs>
+        <dialog>No_Agent_Available</dialog>
+        <type>TransferFailed</type>
+    </conversationSystemDialogs>
+    <entryDialog>Welcome</entryDialog>
+    <mainMenuDialog>Main_Menu</mainMenuDialog>
+    <nlpProviders>
+        <language>en_US</language>
+        <nlpProviderType>EinsteinAi</nlpProviderType>
+    </nlpProviders>
+    <responseDelayMilliseconds>0</responseDelayMilliseconds>
+</BotVersion>

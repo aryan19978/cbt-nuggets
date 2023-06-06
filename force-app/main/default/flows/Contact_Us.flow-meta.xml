@@ -2,104 +2,29 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>56.0</apiVersion>
     <assignments>
-        <name>grab_contact_values_from_request</name>
-        <label>grab contact values from request</label>
-        <locationX>50</locationX>
-        <locationY>518</locationY>
-        <assignmentItems>
-            <assignToReference>find_contact.MailingStreet</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>address</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_contact.MailingCity</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>city</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_contact.MailingCountry</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>country</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_contact.Phone</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>phone</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_contact.MailingState</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>state</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>update_contact</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>grab_lead_values_from_request</name>
-        <label>grab lead values from request</label>
-        <locationX>314</locationX>
-        <locationY>758</locationY>
-        <assignmentItems>
-            <assignToReference>find_lead.Address</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>address</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_lead.City</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>city</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_lead.Country</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>country</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_lead.Company</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>company</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_lead.Phone</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>phone</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>find_lead.State</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>state</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>update_lead</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>missing_required_values_response</name>
-        <label>missing required values response</label>
+        <name>Error_Handle</name>
+        <label>Error Handle</label>
         <locationX>842</locationX>
+        <locationY>998</locationY>
+        <assignmentItems>
+            <assignToReference>response_status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>400</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>response_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Missing_Required_Values_Response</name>
+        <label>Missing Required Values Response</label>
+        <locationX>1370</locationX>
         <locationY>278</locationY>
         <assignmentItems>
             <assignToReference>response_status</assignToReference>
@@ -112,7 +37,7 @@
             <assignToReference>response_message</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>missing required value(s)</stringValue>
+                <stringValue>Missing required value(s).</stringValue>
             </value>
         </assignmentItems>
     </assignments>
@@ -120,7 +45,7 @@
         <name>able_to_find_contact</name>
         <label>able to find contact?</label>
         <locationX>248</locationX>
-        <locationY>398</locationY>
+        <locationY>518</locationY>
         <defaultConnector>
             <targetReference>find_lead</targetReference>
         </defaultConnector>
@@ -140,7 +65,7 @@
                 <operator>NotEqualTo</operator>
             </conditions>
             <connector>
-                <targetReference>grab_contact_values_from_request</targetReference>
+                <targetReference>Create_Case_For_Contact</targetReference>
             </connector>
             <label>found contact</label>
         </rules>
@@ -149,7 +74,7 @@
         <name>able_to_find_lead</name>
         <label>able to find lead?</label>
         <locationX>446</locationX>
-        <locationY>638</locationY>
+        <locationY>758</locationY>
         <defaultConnector>
             <targetReference>create_new_lead</targetReference>
         </defaultConnector>
@@ -169,7 +94,7 @@
                 <operator>NotEqualTo</operator>
             </conditions>
             <connector>
-                <targetReference>grab_lead_values_from_request</targetReference>
+                <targetReference>Create_Case_For_Existing_Lead</targetReference>
             </connector>
             <label>found lead</label>
         </rules>
@@ -177,10 +102,10 @@
     <decisions>
         <name>check_for_required_values</name>
         <label>check for required values</label>
-        <locationX>545</locationX>
+        <locationX>1023</locationX>
         <locationY>158</locationY>
         <defaultConnector>
-            <targetReference>missing_required_values_response</targetReference>
+            <targetReference>Missing_Required_Values_Response</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>missing required values</defaultConnectorLabel>
         <rules>
@@ -256,23 +181,23 @@
                 <operator>NotEqualTo</operator>
             </conditions>
             <connector>
-                <targetReference>find_contact</targetReference>
+                <targetReference>Which_Department</targetReference>
             </connector>
             <label>has required values</label>
         </rules>
     </decisions>
     <decisions>
         <description>Only the two values &apos;ls&apos; and &apos;sales&apos; are accepted.</description>
-        <name>For_what_department</name>
-        <label>For what department</label>
-        <locationX>248</locationX>
-        <locationY>1190</locationY>
+        <name>Which_Department</name>
+        <label>Which Department</label>
+        <locationX>677</locationX>
+        <locationY>278</locationY>
         <defaultConnector>
-            <targetReference>create_task</targetReference>
+            <targetReference>Insert_New_Lead</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>sales</defaultConnectorLabel>
+        <defaultConnectorLabel>if sales</defaultConnectorLabel>
         <rules>
-            <name>ls</name>
+            <name>if_ls</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>department</leftValueReference>
@@ -282,12 +207,18 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>create_case</targetReference>
+                <targetReference>find_contact</targetReference>
             </connector>
-            <label>ls</label>
+            <label>if ls</label>
         </rules>
     </decisions>
     <environments>Default</environments>
+    <formulas>
+        <name>LicenceCountBasedOnNumberOfLearner</name>
+        <dataType>Number</dataType>
+        <expression>IF({!quantity} = &apos;1&apos;, 1 , IF({!quantity} = &apos;2-4&apos;, 2, IF({!quantity} = &apos;5-20&apos;, 5, IF({!quantity} = &apos;20+&apos;, 20 , 1))))</expression>
+        <scale>2</scale>
+    </formulas>
     <interviewLabel>Contact Us {!$Flow.CurrentDateTime}
 Name: {!first_name} {!last_name}
 Email: {!email}</interviewLabel>
@@ -315,10 +246,19 @@ Email: {!email}</interviewLabel>
         <name>create_new_lead</name>
         <label>create new lead</label>
         <locationX>578</locationX>
-        <locationY>758</locationY>
+        <locationY>878</locationY>
         <connector>
-            <targetReference>For_what_department</targetReference>
+            <targetReference>Create_Case_For_New_Lead</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Error_Handle</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Browser__c</field>
+            <value>
+                <elementReference>browser</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>City</field>
             <value>
@@ -344,9 +284,63 @@ Email: {!email}</interviewLabel>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Ext__c</field>
+            <value>
+                <elementReference>ext</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>FirstName</field>
             <value>
                 <elementReference>first_name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Flash__c</field>
+            <value>
+                <elementReference>flash</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Form_Name__c</field>
+            <value>
+                <elementReference>form_name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Campaign__c</field>
+            <value>
+                <elementReference>gacampaign</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Client_Id__c</field>
+            <value>
+                <elementReference>gaclientid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Medium__c</field>
+            <value>
+                <elementReference>gamedium</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Source__c</field>
+            <value>
+                <elementReference>gasource</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Track_Id__c</field>
+            <value>
+                <elementReference>gatrackid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_User_Id__c</field>
+            <value>
+                <elementReference>gauserid</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -359,6 +353,30 @@ Email: {!email}</interviewLabel>
             <field>LeadSource</field>
             <value>
                 <stringValue>Website</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Media_Player__c</field>
+            <value>
+                <elementReference>media_player</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Member_Id__c</field>
+            <value>
+                <elementReference>member_id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OS__c</field>
+            <value>
+                <elementReference>os</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Order__c</field>
+            <value>
+                <elementReference>order</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -391,6 +409,203 @@ Email: {!email}</interviewLabel>
                 <elementReference>address</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>Subject__c</field>
+            <value>
+                <elementReference>subject</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Lead</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Insert_New_Lead</name>
+        <label>Insert New Lead</label>
+        <locationX>1106</locationX>
+        <locationY>398</locationY>
+        <connector>
+            <targetReference>Create_Task</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Browser__c</field>
+            <value>
+                <elementReference>browser</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>City</field>
+            <value>
+                <elementReference>city</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Company</field>
+            <value>
+                <elementReference>company</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Country</field>
+            <value>
+                <elementReference>country</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Email</field>
+            <value>
+                <elementReference>email</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Ext__c</field>
+            <value>
+                <elementReference>ext</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FirstName</field>
+            <value>
+                <elementReference>first_name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Flash__c</field>
+            <value>
+                <elementReference>flash</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Form_Name__c</field>
+            <value>
+                <elementReference>form_name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Campaign__c</field>
+            <value>
+                <elementReference>gacampaign</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Client_Id__c</field>
+            <value>
+                <elementReference>gaclientid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Medium__c</field>
+            <value>
+                <elementReference>gamedium</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Source__c</field>
+            <value>
+                <elementReference>gasource</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_Track_Id__c</field>
+            <value>
+                <elementReference>gatrackid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GA_User_Id__c</field>
+            <value>
+                <elementReference>gauserid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LastName</field>
+            <value>
+                <elementReference>last_name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LeadSource</field>
+            <value>
+                <stringValue>Website</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>License_Count__c</field>
+            <value>
+                <elementReference>LicenceCountBasedOnNumberOfLearner</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Media_Player__c</field>
+            <value>
+                <elementReference>media_player</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Member_Id__c</field>
+            <value>
+                <elementReference>member_id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Message__c</field>
+            <value>
+                <elementReference>message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Number_of_Learners__c</field>
+            <value>
+                <elementReference>quantity</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OS__c</field>
+            <value>
+                <elementReference>os</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Order__c</field>
+            <value>
+                <elementReference>order</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Phone</field>
+            <value>
+                <elementReference>phone</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Rating</field>
+            <value>
+                <stringValue>Hot</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>State</field>
+            <value>
+                <elementReference>state</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>New</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Street</field>
+            <value>
+                <elementReference>address</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject__c</field>
+            <value>
+                <elementReference>subject</elementReference>
+            </value>
+        </inputAssignments>
         <object>Lead</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
@@ -398,7 +613,7 @@ Email: {!email}</interviewLabel>
         <name>find_contact</name>
         <label>find contact</label>
         <locationX>248</locationX>
-        <locationY>278</locationY>
+        <locationY>398</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>able_to_find_contact</targetReference>
@@ -419,7 +634,7 @@ Email: {!email}</interviewLabel>
         <name>find_lead</name>
         <label>find lead</label>
         <locationX>446</locationX>
-        <locationY>518</locationY>
+        <locationY>638</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>able_to_find_lead</targetReference>
@@ -436,28 +651,8 @@ Email: {!email}</interviewLabel>
         <object>Lead</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordUpdates>
-        <name>update_contact</name>
-        <label>update contact</label>
-        <locationX>50</locationX>
-        <locationY>638</locationY>
-        <connector>
-            <targetReference>For_what_department</targetReference>
-        </connector>
-        <inputReference>find_contact</inputReference>
-    </recordUpdates>
-    <recordUpdates>
-        <name>update_lead</name>
-        <label>update lead</label>
-        <locationX>314</locationX>
-        <locationY>878</locationY>
-        <connector>
-            <targetReference>For_what_department</targetReference>
-        </connector>
-        <inputReference>find_lead</inputReference>
-    </recordUpdates>
     <start>
-        <locationX>419</locationX>
+        <locationX>897</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>check_for_required_values</targetReference>
@@ -465,11 +660,17 @@ Email: {!email}</interviewLabel>
     </start>
     <status>Active</status>
     <subflows>
-        <name>create_case</name>
-        <label>create case</label>
-        <locationX>116</locationX>
-        <locationY>1310</locationY>
+        <name>Create_Case_For_Contact</name>
+        <label>Create Case For Contact</label>
+        <locationX>50</locationX>
+        <locationY>638</locationY>
         <flowName>Create_LS_Case_for_Contact_Us</flowName>
+        <inputAssignments>
+            <name>browser</name>
+            <value>
+                <elementReference>browser</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <name>contact_id</name>
             <value>
@@ -477,15 +678,27 @@ Email: {!email}</interviewLabel>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>lead_id</name>
+            <name>flash</name>
             <value>
-                <elementReference>find_lead.Id</elementReference>
+                <elementReference>flash</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>media_player</name>
+            <value>
+                <elementReference>media_player</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <name>message</name>
             <value>
                 <elementReference>message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>os</name>
+            <value>
+                <elementReference>os</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -496,21 +709,113 @@ Email: {!email}</interviewLabel>
         </inputAssignments>
     </subflows>
     <subflows>
-        <name>create_task</name>
-        <label>create task</label>
-        <locationX>380</locationX>
-        <locationY>1310</locationY>
-        <flowName>Create_Sales_Task_for_Contact_Us</flowName>
+        <name>Create_Case_For_Existing_Lead</name>
+        <label>Create Case For Existing Lead</label>
+        <locationX>314</locationX>
+        <locationY>878</locationY>
+        <flowName>Create_LS_Case_for_Contact_Us</flowName>
         <inputAssignments>
-            <name>contact_id</name>
+            <name>browser</name>
             <value>
-                <elementReference>find_contact.Id</elementReference>
+                <elementReference>browser</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flash</name>
+            <value>
+                <elementReference>flash</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <name>lead_id</name>
             <value>
                 <elementReference>find_lead.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>media_player</name>
+            <value>
+                <elementReference>media_player</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>message</name>
+            <value>
+                <elementReference>message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>os</name>
+            <value>
+                <elementReference>os</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>subject</name>
+            <value>
+                <elementReference>subject</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Create_Case_For_New_Lead</name>
+        <label>Create Case For New Lead</label>
+        <locationX>578</locationX>
+        <locationY>998</locationY>
+        <flowName>Create_LS_Case_for_Contact_Us</flowName>
+        <inputAssignments>
+            <name>browser</name>
+            <value>
+                <elementReference>browser</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flash</name>
+            <value>
+                <elementReference>flash</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>lead_id</name>
+            <value>
+                <elementReference>create_new_lead</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>media_player</name>
+            <value>
+                <elementReference>media_player</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>message</name>
+            <value>
+                <elementReference>message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>os</name>
+            <value>
+                <elementReference>os</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>subject</name>
+            <value>
+                <elementReference>subject</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Create_Task</name>
+        <label>Create Task</label>
+        <locationX>1106</locationX>
+        <locationY>518</locationY>
+        <flowName>Create_Sales_Task_for_Contact_Us</flowName>
+        <inputAssignments>
+            <name>lead_id</name>
+            <value>
+                <elementReference>Insert_New_Lead</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -528,6 +833,13 @@ Email: {!email}</interviewLabel>
     </subflows>
     <variables>
         <name>address</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>browser</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
@@ -569,7 +881,21 @@ Email: {!email}</interviewLabel>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>ext</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>first_name</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>flash</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
@@ -583,7 +909,56 @@ Email: {!email}</interviewLabel>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>gacampaign</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>gaclientid</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>gamedium</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>gasource</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>gatrackid</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>gauserid</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>last_name</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>media_player</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
@@ -598,6 +973,20 @@ Email: {!email}</interviewLabel>
     </variables>
     <variables>
         <name>message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>order</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>os</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>

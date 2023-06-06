@@ -3,7 +3,7 @@ public class ProcessOrderCalloutHandler {
     public static Map<String,String> makeHttpCallout(Map<String, String> inputData){
         HttpCalloutService service = new HTTPCalloutService(inputData.get('calloutType'));
         string requestBody = createInputRequest(inputData);
-        system.debug('requestBody'+ requestBody);
+        system.debug('Process Order Request'+ requestBody);
         
         service.setHeaderParameter('adept-apikey', HttpCalloutUtility.getValueCustomMetadata('apiKey'));
         service.setHeaderParameter('adept-billing-env', HttpCalloutUtility.getValueCustomMetadata('env'));
@@ -11,19 +11,15 @@ public class ProcessOrderCalloutHandler {
         
         service.setRequestBody(requestBody);
         HTTPResponse res = service.sendRequest();
-		Map<String,String> responseMap = new Map<String,String>();
+        Map<String,String> responseMap = new Map<String,String>();
         try{
             string resGetBody = res.getBody();
-            system.debug('resGetBody Process Order' + resGetBody);
+            system.debug('Process Order Response' + resGetBody);
             resGetBody = resGetBody.replace('id', 'subId');
             ProcessOrderResponseWrapper jsonStrToWrapper;
             
             jsonStrToWrapper=  (ProcessOrderResponseWrapper) System.JSON.deserialize(resGetBody, ProcessOrderResponseWrapper.class);
-            system.debug('jsonStrToWrapper ' + jsonStrToWrapper);
             ProcessOrderResponseWrapper response = (ProcessOrderResponseWrapper)jsonStrToWrapper; 
-            system.debug('response '+ response);
-            
-            system.debug(response.subscription.attrs.items[0].productId);
             
             if(response.invoiceId== Null){
                 responseMap.put('result',res.getBody());
@@ -32,28 +28,26 @@ public class ProcessOrderCalloutHandler {
             }
             
             String ResponseMessage='';
-
+            
             try{
-                
                 List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
-                
                 Opportunity oppRec = [select id,StageName,Universal_Payment_Link__c,AccountId,Description,
-                                      Invoice_Id__c,Subscription_Id__c,Adept_Customer_Id__c,Bill_to_Account__c,
+                                      Invoice_Id__c,Subscription_Id__c,Account.Adept_Customer_Id__c,Bill_to_Account__c,
                                       Message__c,Reseller__c,Order_Id__c  from Opportunity where id = : inputData.get('oppId')];
-
+                
                 Account accRec = [select id , Adept_Customer_Id__c,Subscription_Id__c 
                                   from ACCOUNT where Id =: oppRec.AccountId ];
-
+                
                 if(accRec.Adept_Customer_Id__c != null){
                     if(accRec.Adept_Customer_Id__c != response.subscription.endCustId){
-                       responseMap.put('adeptCustomerIdCheck','Adept Customer Id('+ response.subscription.endCustId+') does not match with Account Adept Customer Id('+accRec.Adept_Customer_Id__c+').'); 
-                     }
+                        responseMap.put('adeptCustomerIdCheck','Adept Customer Id('+ response.subscription.endCustId+') does not match with Account Adept Customer Id('+accRec.Adept_Customer_Id__c+').'); 
+                    }
                 }
                 else{
                     accRec.Adept_Customer_Id__c = response.subscription.endCustId;
                     update accRec;
                 }
-                    
+                
                 oppRec.StageName = 'Closed Pending';
                 oppRec.Universal_Payment_Link__c = response.universalPaymentLink;
                 oppRec.Invoice_Id__c = response.invoiceId;
@@ -66,46 +60,29 @@ public class ProcessOrderCalloutHandler {
                 update oppRec;
                 
                 // check if renewal opportunity exist
-                List<opportunity> renewalOppLst = [select id,AccountId,Account.PrePay_Only__c,
-                                                   Adept_Customer_Id__c from opportunity 
-                                                   where AccountId =: oppRec.AccountId
-                                                   and Type =: 'Renewal' order by CreatedDate Desc];
-                
-                //List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
-                if(renewalOppLst.size()>0){
-                    // renewal opp exist
-                    Quote newQuote =  QuoteUtility.CloneQuote(quoteList[0].id);
-                    Datetime subEnddt = (DateTime)JSON.deserialize('"' + response.subscription.attrs.items[0].endDate + '"', DateTime.class);
-                    Date subEnddate = date.newinstance(subEnddt.year(), subEnddt.month(), subEnddt.day());
-                    newQuote.Start_Date__c = subEnddate;
-                    newQuote.OpportunityId = renewalOppLst[0].id;
-                    if(renewalOppLst[0].Account.PrePay_Only__c == true){
-                        newQuote.Payment_Terms_Method__c = 'Due Upon Receipt';
-                        newQuote.Billing_Terms__c = 'Net 0';
+                /*List<opportunity> renewalOppLst = [select id,AccountId,Account.PrePay_Only__c,
+Adept_Customer_Id__c from opportunity 
+where AccountId =: oppRec.AccountId
+and Type =: 'Renewal' order by CreatedDate Desc];
+*/
+                opportunity newOpp = new opportunity();
+                newOpp.AccountId = oppRec.AccountId;
+                newOpp.StageName = 'Open';
+                newOpp.Type = 'Renewal';
+                newOpp.License_Type__c =   quoteList[0].License_Type__c;
+                newOpp.License_Count__c = quoteList[0].License_Count__c;
+                newOpp.Term__c =  quoteList[0].Billing_Terms__c;
+                Datetime dt = (DateTime)JSON.deserialize('"' + response.subscription.attrs.items[0].endDate + '"', DateTime.class);
+                newOpp.Start_Date__c = date.newinstance(dT.year(), dT.month(), dT.day());
+                newOpp.Bill_to_Account__c = oppRec.Bill_to_Account__c;
+                newOpp.Reseller__c = oppRec.Reseller__c;
+                newOpp.Adept_Customer_Id__c = response.subscription.endCustId;
+                for(QuoteLineItem qliRec : quoteList[0].QuoteLineItems){
+                    if(qliRec.Product2.productcode == '105' || qliRec.Product2.productcode == '100' ){
+                        newOpp.Renewal_Price__c = qliRec.unitPrice;
                     }
-                    system.debug('newQuote'+ newQuote);
-                    insert  newQuote;
-                    renewalOppLst[0].SyncedQuoteId = newQuote.id;
-                    renewalOppLst[0].Adept_Customer_Id__c = response.subscription.endCustId;
-                    update renewalOppLst[0];
                 }
-                else{
-                    system.debug(quoteList[0]);
-                    system.debug('endDate'+ response.subscription.attrs.items[0].endDate);
-                    opportunity newOpp = new opportunity();
-                    newOpp.AccountId = oppRec.AccountId;
-                    newOpp.StageName = 'Open';
-                    newOpp.Type = 'Renewal';
-                    newOpp.License_Type__c =   quoteList[0].License_Type__c;
-                    newOpp.License_Count__c = quoteList[0].License_Count__c;
-                    newOpp.Term__c =  quoteList[0].Billing_Terms__c;
-                    Datetime dt = (DateTime)JSON.deserialize('"' + response.subscription.attrs.items[0].endDate + '"', DateTime.class);
-                    newOpp.Start_Date__c = date.newinstance(dT.year(), dT.month(), dT.day());
-                    newOpp.Bill_to_Account__c = oppRec.Bill_to_Account__c;
-                    newOpp.Reseller__c = oppRec.Reseller__c;
-                    newOpp.Adept_Customer_Id__c = response.subscription.endCustId;
-                    insert newOpp;
-                }
+                insert newOpp;
             }
             Catch(Exception ex){
                 responseMap.put('result', ex.getMessage() + ' ProcessOrderCalloutHandler' + 'Line No ' + ex.getLineNumber()+' ' + ex.getCause());
@@ -116,14 +93,11 @@ public class ProcessOrderCalloutHandler {
             responseMap.put('result', 'Process Order Successful.');
             responseMap.put('responseType', 'success');
             
-            
             if(response.subscription != null){
                 List<String> endDateList = response.subscription.attrs.items[0].endDate.split('T');
-                
                 String productId = response.subscription.attrs.items[0].productId;
                 Product2 prd = [SELECT Id, Name, ProductCode FROM Product2 where ProductCode =: productId];
-                List<String> licenseTyppeList = prd.Name.split('-');    
-                
+                List<String> licenseTyppeList = prd.Name.split('-');  
                 responseMap.put('css_EndDate', endDateList[0]);
                 responseMap.put('css_LicenseType', licenseTyppeList[0]);
                 responseMap.put('css_Quantity', String.valueof(response.subscription.attrs.items[0].quantity));
@@ -136,11 +110,9 @@ public class ProcessOrderCalloutHandler {
             
             if(response.renewalDetails != null){
                 List<String> startDateList = response.renewalDetails.items[0].startDate.split('T');
-                
                 String productId = response.renewalDetails.items[0].productId;
                 Product2 prd = [SELECT Id, Name, ProductCode FROM Product2 where ProductCode =: productId];
                 List<String> licenseTyppeList = prd.Name.split('-');  
-                
                 responseMap.put('rss_StartDate', startDateList[0]);
                 responseMap.put('rss_LicenseType', licenseTyppeList[0]);
                 responseMap.put('rss_Quantity', String.valueof(response.renewalDetails.items[0].quantity));
@@ -150,11 +122,10 @@ public class ProcessOrderCalloutHandler {
                 responseMap.put('rss_LicenseType', '');
                 responseMap.put('rss_Quantity', '');
             }
-            
             return responseMap;
         }
         Catch(Exception ex){
-            HandleExceptionError.LogException('ProcessOrderCalloutHandler','makeHttpCallout',inputData.get('oppId'),ex,requestBody,res.getBody());
+            System.debug('Error Process Order: '+ex.getMessage() +ex.getLineNumber() + requestBody + res.getBody());
             responseMap.put('result',ex.getMessage() + res.getBody());
             responseMap.put('responseType', 'warning');                 
             return responseMap;
@@ -162,122 +133,129 @@ public class ProcessOrderCalloutHandler {
     }
     
     public static String createInputRequest(Map<String, String> inputData){
-        
         Opportunity oppdata = [ select id , AccountId, Bill_to_Account__c,Account.Name,
-                                Bill_to_Account__r.Name, Bill_to_Account__r.Billing_Email__c,
-                                Bill_to_Account__r.Phone, Bill_to_Account__r.BillingStreet,
-                                Bill_to_Account__r.BillingCity, Bill_to_Account__r.BillingState,
-                                Bill_to_Account__r.BillingPostalCode, Bill_to_Account__r.BillingCountry,
-                                Account.ShippingStreet, Account.ShippingCity,
-                                Account.ShippingState, Account.ShippingPostalCode,
-                                Account.ShippingCountry
-                                from opportunity where id =: inputData.get('oppId') 
-                                ];
+                               Bill_to_Account__r.Name, Bill_to_Account__r.Billing_Email__c,
+                               Bill_to_Account__r.Phone, Exemption_No__c,Tax_Exempt__c,
+                               Tax_Exempt_Expiration_Date__c, Tax_Exempt_Reason__c,
+                               Bill_to_Account__r.BillingStreet,
+                               Bill_to_Account__r.BillingCity, Bill_to_Account__r.BillingState,
+                               Bill_to_Account__r.BillingPostalCode, Bill_to_Account__r.BillingCountry,
+                               Bill_to_Account__r.Adept_Customer_Id__c,
+                               Account.ShippingStreet, Account.ShippingCity,
+                               Account.ShippingState, Account.ShippingPostalCode,
+                               Account.ShippingCountry,
+                               Account.Adept_Customer_Id__c
+                               from opportunity where id =: inputData.get('oppId') 
+                              ];
         
-		List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
-
+        List<Quote> quoteList = getSyncedQuoteForOpp(inputData.get('oppId'));
+        
         /**********************Initializing wrappers************* */
-        
         ContractDetailWrapper contractDetailData = new ContractDetailWrapper();
         List<lineItemWrapper> lineItemDataList = new List<lineItemWrapper>();
         BillToWrapperRequest billToData = new BillToWrapperRequest();
         ShipToWrapperRequest shipToData = new ShipToWrapperRequest();
         OwnerWrapper ownerData = new OwnerWrapper();
-		accountAdminWrapper adminData = new accountAdminWrapper();
+        accountAdminWrapper adminData = new accountAdminWrapper();
         /******************************************************** */
-
-
         
         /***********************seting owner to data ************* */
-
-    
         if(oppdata != null)
         {
-            Contact[] conListOwner =  [Select id ,firstName, LastName, Email from Contact
-                                where AccountId = : quoteList[0].AccountId AND (Owner__c = true OR Primary_Contact__c = true)];
-            if(conListOwner.size()>0){
-                ownerData.firstName = conListOwner[0].firstName;
-                ownerData.lastName = conListOwner[0].LastName;
-                ownerData.company =  quoteList[0].BillingName;
-                ownerData.email = conListOwner[0].Email;
+            if(quoteList.size()>0){
+                Contact[] conListOwner =  [Select id ,firstName, LastName, Email from Contact
+                                           where AccountId = : quoteList[0].AccountId AND (Owner__c = true OR Primary_Contact__c = true)];
+                if(conListOwner.size()>0){
+                    ownerData.firstName = conListOwner[0].firstName;
+                    ownerData.lastName = conListOwner[0].LastName;
+                    ownerData.company =  quoteList[0].BillingName;
+                    ownerData.email = conListOwner[0].Email;
+                }
             }
         }
-
         /********************************************************** */
-
+        
         if(quoteList.size()>0){
-
             /***********************setting line item data ************* */
             String startDate ;
             for(QuoteLineItem qliRec : quoteList[0].QuoteLineItems){
                 lineItemWrapper lineItemData = new lineItemWrapper();
                 lineItemData.productId = qliRec.Product2.productcode;
-                lineItemData.productFamilyId = 'dcbf3492-7ec1-452d-8f17-4a74da3d472e';
+                lineItemData.productFamilyId = System.Label.productFamilyId;
                 lineItemData.quantity = qliRec.Quantity;
                 lineItemData.percentDiscount = qliRec.Discount != null ? qliRec.Discount/100 : 0;
                 lineItemData.unitPrice = qliRec.Original_Price__c ;
+                if( quoteList[0].Override_End_Date__c == true){
+                    lineItemData.durationOverride = qliRec.Duration__c;
+                }
+                else{
+                    lineItemData.durationOverride = 0;
+                }
                 startDate = String.valueof(qliRec.Start_Date__c);
                 lineItemData.startDate = startDate;
                 lineItemDataList.add(lineItemData);
-
                 //setting up admin data
                 adminData.firstName = quoteList[0].Admin_First_Name__c;
                 adminData.lastName = quoteList[0].Admin_Last_Name__c;
                 adminData.email = quoteList[0].Admin_Email__c;
             }
             /********************************************************** */
-
+            
+            
             /***********************seting line item data for tax code ************* */
-
             lineItemWrapper lineItemData3 = new lineItemWrapper();
             lineItemData3.productId = '998';
             lineItemData3.productFamilyId = 'TAX' ;
             lineItemData3.quantity = 1 ;
             lineItemData3.percentDiscount = 0.00;
             lineItemData3.unitPrice = quoteList[0].Tax ;
-            lineItemData3.startDate = startDate;//String.valueof(quoteList[0].Start_Date__c);
-            
+            lineItemData3.startDate = startDate;
             lineItemDataList.add(lineItemData3);
-            
             /********************************************************** */
-
-
+            
+            
             /***********************seting contract data ************* */
-
+            if(oppdata.Tax_Exempt__c == true && (oppdata.Tax_Exempt_Expiration_Date__c <= Date.today() || oppdata.Tax_Exempt_Expiration_Date__c == null)){
+                TaxExemptionWrapper TaxExemptionWrap = new TaxExemptionWrapper();
+                TaxExemptionWrap.exemptionNo = oppdata.Exemption_No__c;
+                TaxExemptionWrap.entityUseCode = oppdata.Tax_Exempt_Reason__c;
+                TaxExemptionWrap.expirationDate = oppdata.Tax_Exempt_Expiration_Date__c;
+                contractDetailData.taxExemption = TaxExemptionWrap;
+            }
             contractDetailData.paymentTerm = quoteList[0].Billing_Terms__c ;
             contractDetailData.earlyRenewal = quoteList[0].Early_Renewal__c ;
+            contractDetailData.autoRenew = quoteList[0].Auto_Renew__c ;
             contractDetailData.quoteType = quoteList[0].Quote_Type__c ;
             contractDetailData.isUniversalPayment = true;
             contractDetailData.lineItems = lineItemDataList;
-
             /********************************************************** */
-
-
+            
+            
             /***********************seting bill to data ************* */
-
-
             AddressWrapper addressDataBill = new AddressWrapper();
-
+            
             //setting up billing address
             addressDataBill.line1 = quoteList[0].BillingStreet;
             addressDataBill.city = quoteList[0].BillingCity;
             addressDataBill.state = quoteList[0].BillingState;
             addressDataBill.postalCode = quoteList[0].BillingPostalCode;
             addressDataBill.countryCode = quoteList[0].BillingCountry;
-
             //setting up billing info
             billToData.sfId = quoteList[0].BillToAccount_Id__c;
+            if(oppdata.Bill_to_Account__c == null){
+            billToData.adeptCustomerId = oppdata.Account.Adept_Customer_Id__c;
+            }
+            else{
+            billToData.adeptCustomerId = oppdata.Bill_to_Account__r.Adept_Customer_Id__c;
+            }
             billToData.accountName =quoteList[0].BillingName;
             billToData.email =quoteList[0].Billing_Email__c;
             billToData.company = quoteList[0].BillingName;
             billToData.address = addressDataBill;
-
             /********************************************************** */
-
-
+            
+            
             /***********************seting ship to data ************* */
-
-
             //setting up shipping address
             AddressWrapper addressDataShip = new AddressWrapper();
             addressDataShip.line1 =quoteList[0].ShippingStreet;
@@ -285,12 +263,16 @@ public class ProcessOrderCalloutHandler {
             addressDataShip.state =quoteList[0].ShippingState;
             addressDataShip.postalCode =quoteList[0].ShippingPostalCode;
             addressDataShip.countryCode =quoteList[0].ShippingCountry;
-            
-             //setting up shipping info
+            //setting up shipping info
             shipToData.sfId =  oppdata.AccountId;
-            shipToData.accountName = quoteList[0].BillingName;
+            string adeptCustomerId = '';
+            if( oppdata.Account.Adept_Customer_Id__c != NULL){
+                adeptCustomerId = oppdata.Account.Adept_Customer_Id__c;
+            }
+            shipToData.adeptCustomerId =  adeptCustomerId;
+            shipToData.accountName = quoteList[0].Account.Name;
+            shipToData.company = quoteList[0].Account.Name;
             shipToData.address = addressDataShip;
-
             /********************************************************** */
         } 
         
@@ -302,8 +284,8 @@ public class ProcessOrderCalloutHandler {
             data.owner = ownerData;
             data.contractDetails = contractDetailData;
             data.accountAdmin = adminData;
-            String jsonStr = JSON.serializePretty(data);
-            jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
+            String jsonStr = JSON.serializePretty(data,true);
+            //jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
             return jsonStr;
         }
         else{
@@ -314,22 +296,23 @@ public class ProcessOrderCalloutHandler {
             data.owner = ownerData;
             data.contractDetails = contractDetailData;
             String jsonStr = JSON.serializePretty(data);
-            jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
+            //jsonStr = jsonStr.remove(',"earlyRenewal":false'); // if Early Renewal is false than we have to remove it from request
             return jsonStr;
         }
     }
     
     public static List<Quote> getSyncedQuoteForOpp( String oppId){
-    
-    Quote[] quoteList = [select id,QuoteNumber,Tax ,Opportunity.Tax_Exempt__c,Start_Date__c,AccountId,Account.Name,
-                         BillToAccount_Id__c,Admin_Email__c,Admin_First_Name__c,Admin_Last_Name__c,
-                         License_Type__c,License_Count__c,Early_Renewal__c,Quote_Type__c,
-                         Billing_Email__c,Billing_Terms__c,BillingName,
-                         BillingStreet,BillingCity,BillingState,BillingPostalCode,BillingCountry,
-                         ShippingStreet,ShippingCity,ShippingState,ShippingPostalCode,ShippingCountry,
-                         (select id,Product2.productcode,Quantity,Discount,UnitPrice,
-                          Start_Date__c,Do_Not_Sync_Original_Price__c,Original_Price__c from  QuoteLineItems)
-                         from Quote where OpportunityId =: oppId and IsSyncing = true];
+        Quote[] quoteList = [select id,QuoteNumber,Tax ,Start_Date__c,AccountId,Account.Name,
+                             BillToAccount_Id__c,Admin_Email__c,Admin_First_Name__c,Admin_Last_Name__c,
+                             License_Type__c,License_Count__c,Early_Renewal__c,Quote_Type__c,Auto_Renew__c,
+                             Billing_Email__c,Billing_Terms__c,BillingName,GrandTotal,Override_End_Date__c,
+                             BillingStreet,BillingCity,BillingState,BillingPostalCode,BillingCountry,
+                             ShippingStreet,ShippingCity,ShippingState,ShippingPostalCode,ShippingCountry,
+                             (select id,Product2.productcode,Quantity,Discount,UnitPrice,
+                              Start_Date__c,Do_Not_Sync_Original_Price__c,Original_Price__c,
+                              Duration__c 
+                              from  QuoteLineItems)
+                             from Quote where OpportunityId =: oppId and IsSyncing = true];
         return quoteList;
     }
     Public class ProcessOrderResponseWrapper{
@@ -358,7 +341,6 @@ public class ProcessOrderCalloutHandler {
         Public Integer quantityPurchased;
         Public String startDate;
         Public Integer percentDiscount;
-            
     }
     
     Public class SubscriptionResponseWrapper{
@@ -392,8 +374,6 @@ public class ProcessOrderCalloutHandler {
     }
     
     Public class ProcessOrderRequestWrapper{
-        //Public string apiKey;
-        //Public string env;
         Public Id opportunityId;
         Public BillToWrapperRequest billTo;
         Public ShipToWrapperRequest shipTo;
@@ -403,15 +383,13 @@ public class ProcessOrderCalloutHandler {
     }
     
     Public class ProcessOrderRequestWithoutAdminWrapper{
-        //Public string apiKey;
-        //Public string env;
         Public Id opportunityId;
         Public BillToWrapperRequest billTo;
         Public ShipToWrapperRequest shipTo;
         Public OwnerWrapper owner;
         Public ContractDetailWrapper contractDetails;
     }
-
+    
     public class  accountAdminWrapper{
         public string email;
         public string lastName;
@@ -419,11 +397,19 @@ public class ProcessOrderCalloutHandler {
     }   
     
     public class ContractDetailWrapper{
+        Public Boolean autoRenew;
         Public string paymentTerm;
         Public boolean isUniversalPayment;
         Public boolean earlyRenewal;
         Public string quoteType;
         Public List<lineItemWrapper> lineItems;
+        Public TaxExemptionWrapper taxExemption;
+    }
+    
+    public class TaxExemptionWrapper{
+        Public string exemptionNo;
+        Public string entityUseCode;
+        Public Date expirationDate; 
     }
     
     public class lineItemWrapper{
@@ -433,6 +419,7 @@ public class ProcessOrderCalloutHandler {
         Public Decimal percentDiscount;
         Public Decimal unitPrice;
         Public string startDate;
+        Public Decimal durationOverride;
     }  
     
     public class OwnerWrapper{
@@ -444,15 +431,18 @@ public class ProcessOrderCalloutHandler {
     
     public class BillToWrapperRequest{
         public Id sfId;
+        public string adeptCustomerId;
         public string accountName;
         public string email;
         public string company;
         public AddressWrapper address;
     }
-     
+    
     public class ShipToWrapperRequest{
         public Id sfId;
+        public string adeptCustomerId;
         public string accountName;
+        public string company;
         public AddressWrapper address;
     }
     

@@ -43,7 +43,7 @@
         <name>Create_Trial_Callout_From_Lead</name>
         <label>Create Trial Callout From Lead</label>
         <locationX>50</locationX>
-        <locationY>1094</locationY>
+        <locationY>1082</locationY>
         <actionName>TrialExternalCallout</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -54,6 +54,12 @@
             <name>adminEmail</name>
             <value>
                 <elementReference>Admin_Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>adminName</name>
+            <value>
+                <elementReference>Admin_Name</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -104,8 +110,8 @@
     <actionCalls>
         <name>Create_Trial_Callout_From_Opp</name>
         <label>Create Trial Callout From Opp</label>
-        <locationX>578</locationX>
-        <locationY>974</locationY>
+        <locationX>842</locationX>
+        <locationY>866</locationY>
         <actionName>TrialExternalCallout</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -116,6 +122,12 @@
             <name>adminEmail</name>
             <value>
                 <elementReference>Admin_Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>adminName</name>
+            <value>
+                <elementReference>Admin_Name</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -167,7 +179,7 @@
         <name>Navigate_To_Opportunity</name>
         <label>Navigate To Opportunity</label>
         <locationX>50</locationX>
-        <locationY>1334</locationY>
+        <locationY>1298</locationY>
         <actionName>c:NavigateToRecord</actionName>
         <actionType>component</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -202,10 +214,70 @@
         </value>
     </constants>
     <decisions>
+        <name>Check_For_Required_Field_For_Request</name>
+        <label>Check For Required Field For Request</label>
+        <locationX>314</locationX>
+        <locationY>866</locationY>
+        <defaultConnector>
+            <targetReference>RequiredFieldMissing</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>All_Required_Field_Populated</name>
+            <conditionLogic>1 AND (2 OR 3 OR 4 OR 5 OR 6)</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Lead_Record.FirstName</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Lead_Record.Street</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Lead_Record.City</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Lead_Record.PostalCode</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Lead_Record.State</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Lead_Record.Country</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Convert_Lead</targetReference>
+            </connector>
+            <label>All Required Field Populated</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Check_Object</name>
         <label>Check Object</label>
-        <locationX>446</locationX>
-        <locationY>278</locationY>
+        <locationX>710</locationX>
+        <locationY>242</locationY>
         <defaultConnector>
             <targetReference>Trial_Screen</targetReference>
         </defaultConnector>
@@ -244,8 +316,8 @@
     <decisions>
         <name>Object</name>
         <label>Object</label>
-        <locationX>446</locationX>
-        <locationY>854</locationY>
+        <locationX>710</locationX>
+        <locationY>758</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Yes_Lead</name>
@@ -258,7 +330,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Convert_Lead</targetReference>
+                <targetReference>Check_For_Required_Field_For_Request</targetReference>
             </connector>
             <label>Lead</label>
         </rules>
@@ -349,8 +421,8 @@
         <description>Get lead record to prepopulate field on screen.</description>
         <name>Get_Lead_Record</name>
         <label>Get Lead Record</label>
-        <locationX>182</locationX>
-        <locationY>398</locationY>
+        <locationX>446</locationX>
+        <locationY>350</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Trial_Screen</targetReference>
@@ -369,13 +441,21 @@
         <queriedFields>License_Count__c</queriedFields>
         <queriedFields>License_Type__c</queriedFields>
         <queriedFields>Email</queriedFields>
+        <queriedFields>FirstName</queriedFields>
+        <queriedFields>LastName</queriedFields>
+        <queriedFields>Address</queriedFields>
+        <queriedFields>Street</queriedFields>
+        <queriedFields>City</queriedFields>
+        <queriedFields>PostalCode</queriedFields>
+        <queriedFields>State</queriedFields>
+        <queriedFields>Country</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>Get_Opportunity_Record</name>
         <label>Get Opportunity Record</label>
-        <locationX>446</locationX>
-        <locationY>398</locationY>
+        <locationX>710</locationX>
+        <locationY>350</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Primary_Contact</targetReference>
@@ -400,8 +480,8 @@
     <recordLookups>
         <name>Get_Primary_Contact</name>
         <label>Get Primary Contact</label>
-        <locationX>446</locationX>
-        <locationY>518</locationY>
+        <locationX>710</locationX>
+        <locationY>458</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Trial_Screen</targetReference>
@@ -432,8 +512,8 @@
     <recordLookups>
         <name>GetEntity</name>
         <label>GetEntity</label>
-        <locationX>446</locationX>
-        <locationY>158</locationY>
+        <locationX>710</locationX>
+        <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Check_Object</targetReference>
@@ -454,7 +534,7 @@
         <name>ConvertLearErrorFooter</name>
         <label>ConvertLearErrorFooter</label>
         <locationX>314</locationX>
-        <locationY>1094</locationY>
+        <locationY>1082</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -468,10 +548,42 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
+        <name>RequiredFieldMissing</name>
+        <label>RequiredFieldMissing</label>
+        <locationX>578</locationX>
+        <locationY>974</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>RequiredFieldNotPopulated</name>
+            <extensionName>c:lwc_NotifyMessage</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>type</name>
+                <value>
+                    <stringValue>warning</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>message</name>
+                <value>
+                    <stringValue>First Name or Address is missing on Lead.</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <nextOrFinishButtonLabel>Okay</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
         <name>Trial_Result_For_Lead</name>
         <label>Trial Result For Lead</label>
         <locationX>50</locationX>
-        <locationY>1214</locationY>
+        <locationY>1190</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -554,8 +666,8 @@
     <screens>
         <name>Trial_Result_For_Opp</name>
         <label>Trial Result For Opp</label>
-        <locationX>578</locationX>
-        <locationY>1094</locationY>
+        <locationX>842</locationX>
+        <locationY>974</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -641,8 +753,8 @@
     <screens>
         <name>Trial_Screen</name>
         <label>Trial Screen</label>
-        <locationX>446</locationX>
-        <locationY>734</locationY>
+        <locationX>710</locationX>
+        <locationY>650</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -769,7 +881,7 @@
         <showHeader>true</showHeader>
     </screens>
     <start>
-        <locationX>320</locationX>
+        <locationX>584</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>GetEntity</targetReference>
